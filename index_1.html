@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Örnek Diş Kliniği Demosu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Nunito:wght@700;800&display=swap">
+<style>
+:root{
+  --brand:#0E7490;
+  --bg:#E9F0F1; --surface:#FFFFFF; --surface-2:#F4F8F9; --ink:#10272E; --ink-2:#4A6168; --ink-3:#7A8F95; --line:#D8E3E6;
+  --frame:#1B2B30;
+  --ok:#15803D; --ok-soft:#DCFCE7; --warn:#B45309; --warn-soft:#FEF3C7; --bad:#B91C1C; --bad-soft:#FEE2E2;
+  --info:#1D4ED8; --info-soft:#DBEAFE; --muted-soft:#E7EDEF;
+  --brand-text:var(--brand);
+  --brand-soft:color-mix(in srgb, var(--brand) 12%, var(--surface));
+  --brand-softer:color-mix(in srgb, var(--brand) 6%, var(--surface));
+  --shadow:0 1px 2px rgba(16,39,46,.06), 0 10px 30px rgba(16,39,46,.08);
+  --body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display:"Bricolage Grotesque", "Manrope", system-ui, sans-serif;
+  --s-display:var(--display);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#081113; --surface:#101D21; --surface-2:#0C171A; --ink:#E3EDEF; --ink-2:#A2B5BA; --ink-3:#6C8288; --line:#22363C;
+    --frame:#000;
+    --ok:#4ADE80; --ok-soft:#10301D; --warn:#FBBF24; --warn-soft:#382909; --bad:#F87171; --bad-soft:#3A1414;
+    --info:#93C5FD; --info-soft:#14244A; --muted-soft:#1A2A2F;
+    --brand-text:color-mix(in srgb, var(--brand) 55%, #fff);
+    --brand-soft:color-mix(in srgb, var(--brand) 26%, var(--surface));
+    --brand-softer:color-mix(in srgb, var(--brand) 12%, var(--surface));
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#081113; --surface:#101D21; --surface-2:#0C171A; --ink:#E3EDEF; --ink-2:#A2B5BA; --ink-3:#6C8288; --line:#22363C;
+  --frame:#000;
+  --ok:#4ADE80; --ok-soft:#10301D; --warn:#FBBF24; --warn-soft:#382909; --bad:#F87171; --bad-soft:#3A1414;
+  --info:#93C5FD; --info-soft:#14244A; --muted-soft:#1A2A2F;
+  --brand-text:color-mix(in srgb, var(--brand) 55%, #fff);
+  --brand-soft:color-mix(in srgb, var(--brand) 26%, var(--surface));
+  --brand-softer:color-mix(in srgb, var(--brand) 12%, var(--surface));
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{font-family:var(--body);color:var(--ink);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brand-text);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- demo shell ---------- */
+.shell{max-width:1320px;margin:0 auto;padding-inline:16px;padding-block:14px 40px}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.bar-title{display:flex;flex-direction:column;gap:1px;margin-right:auto;min-width:0}
+.bar-title b{font-size:15px;font-weight:800;letter-spacing:-.01em}
+.bar-title span{color:var(--ink-2);font-size:13px}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:7px 13px;border-radius:8px;font-weight:700;font-size:13px;color:var(--ink-2);position:relative;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.seg .dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--bad)}
+.ghost{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:7px 12px;font-weight:600;font-size:13px;color:var(--ink-2)}
+.ghost:hover{color:var(--ink);border-color:var(--ink-3)}
+body[data-mode="panel"] #device-seg{display:none}
+body[data-mode="site"] #view-panel,body[data-mode="panel"] #view-site{display:none}
+
+/* site frame: desktop browser or phone */
+.site-frame{position:relative;background:var(--surface);box-shadow:var(--shadow)}
+.site-frame[data-device="desktop"]{max-width:1240px;margin-inline:auto;border:1px solid var(--line);border-radius:14px;overflow:clip}
+.browser{display:flex;align-items:center;gap:12px;padding:9px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.browser i{width:11px;height:11px;border-radius:50%;background:var(--line);display:inline-block}
+.browser .dots{display:flex;gap:6px}
+.browser .url{flex:1;max-width:420px;margin-inline:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 12px;font-size:12.5px;color:var(--ink-2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.browser .url b{color:var(--ink);font-weight:600}
+.site-frame[data-device="mobile"]{width:390px;max-width:100%;height:min(812px, calc(100vh - 110px));min-height:560px;margin-inline:auto;border:10px solid var(--frame);border-radius:42px;overflow:hidden}
+.site-frame[data-device="mobile"] .browser{display:none}
+.site-frame[data-device="mobile"] .site{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.site{background:var(--surface);container-type:inline-size;container-name:site}
+.sheet-scrim{position:fixed;inset:0;z-index:50;background:rgba(5,15,18,.5);display:grid;place-items:center;padding:16px}
+.site-frame[data-device="mobile"] .sheet-scrim{position:absolute;padding:0;background:transparent}
+.sheet{width:min(460px,100%);height:min(740px,calc(100vh - 32px));background:var(--surface);border-radius:20px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);animation:up .22s ease-out}
+.site-frame[data-device="mobile"] .sheet{width:100%;height:100%;border-radius:0;box-shadow:none}
+@media (max-width:700px){
+  #device-seg{display:none!important}
+  .site-frame[data-device]{width:auto;height:auto;min-height:0;border:1px solid var(--line);border-radius:14px}
+  .site-frame[data-device] .browser{display:none}
+  .site-frame[data-device] .site{height:auto;overflow:visible}
+  .site-frame[data-device] .sheet-scrim{position:fixed;padding:0;background:transparent}
+  .site-frame[data-device] .sheet{width:100%;height:100%;border-radius:0}
+}
+@keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet,.toast{animation:none}.flash{animation:none!important}}
+
+/* ---------- patient site ---------- */
+.s-in{max-width:1080px;margin-inline:auto}
+.s-head{position:sticky;top:0;z-index:5;background:color-mix(in srgb, var(--surface) 90%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 18px}
+.site-frame[data-device="desktop"] .s-head{top:env(safe-area-inset-top,0px)}
+.s-head .s-in{display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;gap:9px;font-family:var(--s-display);font-weight:700;font-size:17px;letter-spacing:-.01em;min-width:0;margin-right:auto}
+.logo span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.logo .mark{flex:none;width:32px;height:32px;border-radius:10px;background:var(--brand);display:grid;place-items:center}
+.logo .mark svg{width:19px;height:19px;fill:#fff}
+.s-nav{display:none;gap:4px}
+.s-nav button{border:0;background:none;padding:7px 10px;border-radius:8px;font-weight:600;color:var(--ink-2)}
+.s-nav button:hover{color:var(--ink);background:var(--surface-2)}
+.s-phone{display:none;font-weight:700;color:var(--ink-2);font-size:13.5px}
+.btn{border:0;border-radius:10px;background:var(--brand);color:#fff;font-weight:700;padding:9px 14px;font-size:13.5px;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{filter:brightness(1.08)}
+.btn.lg{padding:14px 20px;font-size:15px;border-radius:12px}
+.btn.full{width:100%}
+.btn.sec{background:var(--brand-soft);color:var(--brand-text)}
+.btn.line{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+
+.s-hero{padding:30px 18px 28px;background:linear-gradient(180deg,var(--brand-softer),var(--surface))}
+.s-hero-in{display:grid;gap:22px;align-items:start}
+.eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-text);margin:0 0 10px}
+.s-hero h1{font-family:var(--s-display);font-size:31px;line-height:1.07;letter-spacing:-.02em;margin-bottom:12px}
+.s-hero p.sub{color:var(--ink-2);margin:0 0 20px;font-size:15px;max-width:48ch}
+.cta{display:flex;gap:8px;flex-wrap:wrap}
+.cta .btn{flex:1 1 auto}
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:16px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.fact small{display:block;color:var(--ink-3);font-size:11.5px;font-weight:600}
+.fact b{font-size:13.5px}
+.quick{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.quick-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.quick-h b{font-size:15px}
+.quick-h small{color:var(--ok);font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:5px}
+.quick-h small::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.qrow{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.qrow b{display:block;font-size:13.5px}
+.qrow small{color:var(--ink-2);font-size:12px}
+.qslot{border:1.5px solid var(--brand);color:var(--brand-text);background:var(--surface);border-radius:10px;padding:6px 10px;font-weight:800;font-size:12.5px;text-align:center;line-height:1.2}
+.qslot span{display:block;font-weight:600;font-size:11px;color:var(--ink-2)}
+.qslot:hover{background:var(--brand-softer)}
+
+.s-sec{padding:30px 18px;border-top:1px solid var(--line)}
+.s-sec h2{font-family:var(--s-display);font-size:23px;letter-spacing:-.015em;margin-bottom:4px}
+.s-sec p.lead{color:var(--ink-2);margin:0 0 16px;font-size:14px;max-width:60ch}
+.svc{display:grid;gap:10px}
+.svc div{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.svc b{display:block;font-size:15px;margin-bottom:2px}
+.svc span{color:var(--ink-2);font-size:13px}
+.docs{display:grid;gap:12px}
+.doc{display:grid;grid-template-columns:56px 1fr;gap:12px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.av{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;color:#fff;flex:none}
+.av.sm{width:38px;height:38px;font-size:13px}
+.doc h3{font-size:15.5px;font-weight:800}
+.doc .spec{color:var(--brand-text);font-weight:700;font-size:12.5px}
+.doc p{margin:6px 0 12px;color:var(--ink-2);font-size:13px}
+.s-contact{display:grid;gap:18px}
+.hours{width:100%;border-collapse:collapse;font-size:14px}
+.hours td{padding:8px 0;border-bottom:1px dashed var(--line)}
+.hours td:last-child{text-align:right;font-weight:700}
+.contact{display:grid;gap:10px}
+.contact div{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.contact small{color:var(--ink-3);font-weight:600}
+.contact a{color:var(--brand-text);font-weight:700;text-decoration:none}
+.s-foot{padding:20px 18px;background:var(--surface-2);border-top:1px solid var(--line);color:var(--ink-3);font-size:12px}
+.s-foot .s-in{display:grid;gap:6px}
+.link{background:none;border:0;padding:0;color:var(--brand-text);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+
+@container site (min-width: 760px){
+  .s-head{padding:14px 28px}
+  .s-nav,.s-phone{display:flex}
+  .s-hero{padding:56px 28px 56px}
+  .s-hero-in{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:48px;align-items:center}
+  .s-hero h1{font-size:50px}
+  .s-hero p.sub{font-size:16.5px}
+  .cta .btn{flex:0 0 auto}
+  .facts{grid-template-columns:repeat(3,1fr);max-width:520px}
+  .s-sec{padding:48px 28px}
+  .s-sec h2{font-size:30px}
+  .svc{grid-template-columns:repeat(3,1fr)}
+  .docs{grid-template-columns:repeat(3,1fr)}
+  .doc{grid-template-columns:1fr}
+  .s-contact{grid-template-columns:1fr 1fr;gap:48px}
+  .s-foot{padding:24px 28px}
+}
+
+/* booking sheet */
+.sh-head{display:grid;grid-template-columns:36px 1fr 36px;align-items:center;padding:10px;border-bottom:1px solid var(--line)}
+.sh-head b{text-align:center;font-size:14.5px}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:0;background:transparent;display:grid;place-items:center;color:var(--ink-2);font-size:20px;line-height:1}
+.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:12px 16px 4px;margin:0;list-style:none}
+.steps li{font-size:11px;font-weight:700;color:var(--ink-3);display:grid;gap:5px}
+.steps li::before{content:"";height:4px;border-radius:4px;background:var(--line)}
+.steps li.on{color:var(--ink)}
+.steps li.on::before,.steps li.past::before{background:var(--brand)}
+.sh-body{flex:1;overflow-y:auto;padding:14px 16px 20px}
+.sh-body h3{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:12px}
+.pick{display:grid;gap:8px}
+.opt{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;padding:12px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface)}
+.opt:hover{border-color:var(--ink-3)}
+.opt.sel{border-color:var(--brand);background:var(--brand-softer)}
+.opt b{display:block;font-size:14.5px}
+.opt small{color:var(--ink-2);font-size:12.5px}
+.opt .chev{color:var(--ink-3);font-size:18px}
+.cal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .wd{font-size:11px;font-weight:700;color:var(--ink-3);text-align:center;padding-bottom:2px}
+.day{aspect-ratio:1/1.05;border:1.5px solid var(--line);border-radius:11px;background:var(--surface);display:grid;place-content:center;text-align:center;padding:0}
+.day b{font-size:15px;line-height:1.1}
+.day i{font-style:normal;font-size:10px;color:var(--ok);font-weight:700}
+.day:disabled{background:var(--surface-2);border-color:transparent;color:var(--ink-3);cursor:default}
+.day:disabled i{color:var(--ink-3)}
+.day.today b{text-decoration:underline;text-underline-offset:3px}
+.day.sel{border-color:var(--brand);background:var(--brand);color:#fff}
+.day.sel i{color:#fff}
+.slot-g{margin-bottom:14px}
+.slot-g small{display:block;font-weight:700;color:var(--ink-3);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.slot{padding:10px 0;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-weight:700;font-variant-numeric:tabular-nums}
+.slot:hover:not(:disabled){border-color:var(--brand)}
+.slot.sel{background:var(--brand);border-color:var(--brand);color:#fff}
+.slot:disabled{background:var(--surface-2);border-color:transparent;color:var(--ink-3);text-decoration:line-through;cursor:default}
+.ctx{background:var(--surface-2);border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:13px;color:var(--ink-2)}
+.ctx b{color:var(--ink)}
+.field{display:grid;gap:5px;margin-bottom:12px}
+.field label{font-weight:700;font-size:13px}
+.field label small{font-weight:600;color:var(--ink-3)}
+.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px}
+.field textarea{resize:vertical;min-height:64px;font-size:14px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--brand)}
+.hint{color:var(--ink-3);font-size:12px}
+.check{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;font-size:12.5px;color:var(--ink-2);margin:4px 0 14px}
+.check input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--brand)}
+.err{background:var(--bad-soft);color:var(--bad);border-radius:10px;padding:10px 12px;font-weight:700;font-size:13px;margin-bottom:12px}
+.done{text-align:center;padding-top:14px}
+.done .ok-ic{width:62px;height:62px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;margin:0 auto 12px;font-size:30px;font-weight:800}
+.done h3{font-size:21px}
+.sum{margin:16px 0;text-align:left;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.sum div{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13.5px}
+.sum div:last-child{border-bottom:0}
+.sum small{color:var(--ink-3);font-weight:600}
+.sum b{text-align:right}
+.note{font-size:12.5px;color:var(--ink-2);background:var(--surface-2);border-radius:10px;padding:10px 12px;text-align:left;margin:0 0 14px}
+.stack{display:grid;gap:8px}
+.kvkk-text{font-size:13px;color:var(--ink-2);display:grid;gap:10px}
+.kvkk-text p{margin:0}
+
+/* ---------- panel ---------- */
+.panel{max-width:1240px;margin-inline:auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.p-top{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.p-id{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
+.p-id .mark{flex:none;width:34px;height:34px;border-radius:10px;background:var(--brand);display:grid;place-items:center}
+.p-id .mark svg{width:19px;height:19px;fill:#fff}
+.p-id b{display:block;font-size:15px;font-weight:800}
+.p-id small{color:var(--ink-3);font-size:12px}
+.p-nav{display:flex;gap:2px;padding:6px 10px;border-bottom:1px solid var(--line);overflow-x:auto;background:var(--surface-2)}
+.p-nav button{border:0;background:transparent;padding:8px 12px;border-radius:8px;font-weight:700;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.p-nav button:hover{color:var(--ink)}
+.p-nav button[aria-current="page"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.p-nav .cnt{display:inline-block;margin-left:5px;min-width:18px;padding:0 5px;border-radius:9px;background:var(--brand);color:#fff;font-size:11px;line-height:18px}
+.p-body{padding:18px 20px 24px}
+.p-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.p-head h2{font-size:19px;font-weight:800;letter-spacing:-.01em;margin-right:auto}
+.nav-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-size:16px;color:var(--ink-2)}
+.nav-btn:hover:not(:disabled){color:var(--ink);border-color:var(--ink-3)}
+.nav-btn:disabled{opacity:.4;cursor:default}
+.stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.stat{display:flex;align-items:baseline;gap:6px;padding:7px 11px;border-radius:9px;background:var(--surface-2);font-size:12.5px;color:var(--ink-2);font-weight:600}
+.stat b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.list{display:grid;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer;background:var(--surface)}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--surface-2)}
+.row.now{box-shadow:inset 3px 0 0 var(--brand)}
+.row.is-cancelled .r-name,.row.is-cancelled .r-time b{text-decoration:line-through;color:var(--ink-3)}
+.r-time b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
+.r-time small{color:var(--ink-3);font-variant-numeric:tabular-nums}
+.r-name{font-weight:700;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.r-sub{color:var(--ink-2);font-size:12.5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ddot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+.src{font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+.r-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st-pending{background:var(--info-soft);color:var(--info)}
+.st-confirmed{background:var(--brand-soft);color:var(--brand-text)}
+.st-attended{background:var(--ok-soft);color:var(--ok)}
+.st-no_show{background:var(--warn-soft);color:var(--warn)}
+.st-cancelled{background:var(--muted-soft);color:var(--ink-3)}
+.mini{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:var(--ink-2);text-decoration:none}
+.mini:hover{color:var(--ink);border-color:var(--ink-3)}
+.mini.ok{color:var(--ok)} .mini.warn{color:var(--warn)} .mini.bad{color:var(--bad)} .mini.pri{color:var(--brand-text)}
+.empty{padding:28px 16px;text-align:center;color:var(--ink-3);border:1px dashed var(--line);border-radius:14px}
+.flash{animation:flash 2.6s ease-out}
+@keyframes flash{0%,30%{background:var(--brand-soft)}100%{background:var(--surface)}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:700;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px}
+.chip[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);background:var(--surface-2)}
+.week-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+.week{display:grid;grid-template-columns:repeat(6,minmax(128px,1fr));min-width:780px}
+.wcol{border-right:1px solid var(--line);min-height:320px}
+.wcol:last-child{border-right:0}
+.wcol.today .wh{background:var(--brand-soft)}
+.wh{padding:9px 10px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;background:var(--surface-2)}
+.wh b{font-size:13px}
+.wh small{color:var(--ink-3);font-weight:700;font-size:11.5px}
+.wbody{padding:6px;display:grid;gap:5px;align-content:start}
+.wi{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 8px;font-size:12px;display:grid;gap:1px}
+.wi:hover{border-color:var(--ink-3)}
+.wi .t{font-weight:800;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:5px}
+.wi .n{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wi.off{background:var(--surface-2);border-style:dashed;color:var(--ink-3)}
+.wi.cx{opacity:.55}.wi.cx .n{text-decoration:line-through}
+.wi.st-attended-b .t::after{content:"✓";color:var(--ok);margin-left:auto}
+.wi.st-no_show-b .t::after{content:"!";color:var(--warn);margin-left:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px;align-content:start}
+.card-h{display:flex;gap:10px;align-items:center}
+.card-h b{display:block}
+.card-h small{color:var(--ink-2)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12.5px;margin:0}
+.kv dt{color:var(--ink-3);font-weight:600}
+.kv dd{margin:0;font-variant-numeric:tabular-nums}
+.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.inline select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.inline input[type=checkbox]{accent-color:var(--brand);width:16px;height:16px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;align-items:end;padding:14px;border:1px solid var(--line);border-radius:14px;margin-bottom:14px;background:var(--surface-2)}
+.form-grid .field{margin:0}
+.form-grid .field input,.form-grid .field select{font-size:14px;padding:9px 10px}
+.explain{color:var(--ink-2);font-size:13px;margin:-6px 0 14px;max-width:72ch}
+.mail{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 14px;border:0;border-bottom:1px solid var(--line);background:var(--surface);text-align:left;width:100%}
+.mail:hover{background:var(--surface-2)}
+.mail:last-child{border-bottom:0}
+.mail .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:15px;background:var(--surface-2)}
+.mail b{display:block;font-size:13.5px}
+.mail small{color:var(--ink-2);font-size:12.5px}
+.set{display:grid;gap:16px;max-width:600px}
+.set .field{margin:0}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sw{width:34px;height:34px;border-radius:10px;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}
+.sw[aria-pressed="true"]{border-color:var(--ink)}
+.swatches input[type=color]{width:44px;height:34px;padding:0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.fonts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fontopt{border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:10px;text-align:left}
+.fontopt b{display:block;font-size:19px;line-height:1.2}
+.fontopt small{color:var(--ink-3);font-weight:600}
+.fontopt[aria-pressed="true"]{border-color:var(--ink);background:var(--surface-2)}
+.addon{display:grid;gap:8px}
+.addon div{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;font-size:13px}
+.addon span{color:var(--ink-3);font-weight:600}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(5,15,18,.45);z-index:60;display:flex;justify-content:flex-end}
+.drawer{width:min(440px,100%);height:100%;background:var(--surface);display:flex;flex-direction:column;box-shadow:var(--shadow);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.dr-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+.dr-head b{font-size:15px}
+.dr-body{flex:1;overflow-y:auto;padding:16px;display:grid;gap:14px;align-content:start}
+.dr-body .sum{margin:0}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row .mini{padding:8px 12px;font-size:13px}
+.copy{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.copy code{font-family:var(--body);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;user-select:all}
+
+/* e-mail preview (always light, like a real inbox) */
+.em{background:#F2F5F6;border-radius:14px;padding:14px;color:#10272E;font-family:var(--body)}
+.em-meta{font-size:12px;color:#51666C;margin-bottom:10px;display:grid;gap:2px}
+.em-meta b{color:#10272E}
+.em-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #DDE6E8}
+.em-top{background:var(--brand);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px}
+.em-top .mk{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.18);display:grid;place-items:center}
+.em-top .mk svg{width:16px;height:16px;fill:#fff}
+.em-body{padding:18px 16px;display:grid;gap:12px;font-size:14px;line-height:1.55}
+.em-body h4{margin:0;font-size:19px;letter-spacing:-.01em;line-height:1.25}
+.em-body p{margin:0;color:#3D5258}
+.em-box{background:#F4F8F9;border-radius:10px;padding:12px;display:grid;gap:4px;font-size:13.5px}
+.em-box b{color:#10272E}
+.em-btn{display:block;text-align:center;background:var(--brand);color:#fff;border-radius:10px;padding:12px;font-weight:800;text-decoration:none}
+.em-btn.alt{background:#fff;color:#10272E;border:1.5px solid #DDE6E8}
+.em-foot{padding:12px 16px;border-top:1px solid #E6EDEF;font-size:11.5px;color:#7A8F95}
+.stars{color:#F59E0B;font-size:22px;letter-spacing:4px;text-align:center}
+
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:80;display:grid;gap:8px;width:min(460px,calc(100% - 32px))}
+.toast{background:var(--ink);color:var(--surface);border-radius:12px;padding:11px 14px;font-weight:600;font-size:13.5px;display:flex;gap:10px;align-items:center;justify-content:space-between;box-shadow:var(--shadow);animation:up .2s ease-out}
+.toast button{border:0;background:transparent;color:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
+
+@media (max-width:560px){
+  .row{grid-template-columns:52px minmax(0,1fr)}
+  .r-right{grid-column:1 / -1;justify-content:flex-start}
+  .p-body{padding:14px}
+  .mail{grid-template-columns:auto minmax(0,1fr)}
+  .mail .pill{grid-column:2;justify-self:start}
+  .fonts{grid-template-columns:1fr}
+}
+</style>
+<style>body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="bar">
+    <div class="bar-title">
+      <b>Diş kliniği web sitesi + online randevu · demo</b>
+      <span>Hayali "Örnek Diş Kliniği" verisiyle çalışır.</span>
+    </div>
+    <div class="seg" role="group" aria-label="Ekran">
+      <button id="mode-site" data-act="mode" data-v="site" aria-pressed="true">Web sitesi</button>
+      <button id="mode-panel" data-act="mode" data-v="panel" aria-pressed="false">Randevu paneli<span class="dot" id="panel-dot" hidden></span></button>
+    </div>
+    <div class="seg" id="device-seg" role="group" aria-label="Cihaz">
+      <button id="dev-desktop" data-act="device" data-v="desktop" aria-pressed="true">Masaüstü</button>
+      <button id="dev-mobile" data-act="device" data-v="mobile" aria-pressed="false">Mobil</button>
+    </div>
+    <button class="ghost" data-act="reset">Sıfırla</button>
+  </div>
+
+  <main id="view-site">
+    <div class="site-frame" id="frame" data-device="desktop">
+      <div class="browser" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="url" id="url"></span></div>
+      <div class="site" id="site"></div>
+      <div class="sheet-scrim" id="sheet-scrim" data-act="sheetScrim" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Online randevu"></div></div>
+    </div>
+  </main>
+  <main id="view-panel">
+    <div class="panel" id="panel"></div>
+  </main>
+</div>
+<div id="drawer-root"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+const KEY = 'ornek-dis-demo-v2';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const at = (ds, t) => { const [y,m,d] = ds.split('-').map(Number); const [h,mi] = t.split(':').map(Number); return new Date(y, m-1, d, h, mi, 0, 0); };
+const hm = ms => { const d = new Date(ms); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const isoDow = d => ((d.getDay() + 6) % 7) + 1;
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const midnight = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+const mondayOf = d => addDays(midnight(d), -(isoDow(d) - 1));
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const MONTHS = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const DAYS = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+const DAYS_S = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+const fmtDay = ms => { const d = new Date(ms); return `${d.getDate()} ${MONTHS[d.getMonth()]} ${DAYS[isoDow(d)-1]}`; };
+const fmtLong = ms => `${fmtDay(ms)}, ${hm(ms)}`;
+const fmtPhone = p => p ? `0${p.slice(3,6)} ${p.slice(6,9)} ${p.slice(9,11)} ${p.slice(11,13)}` : '';
+const relDay = ds => { const n = new Date(); if (ds === ymd(n)) return 'Bugün'; if (ds === ymd(addDays(n, 1))) return 'Yarın'; if (ds === ymd(addDays(n, -1))) return 'Dün'; return ''; };
+const docLabel = d => `${d.title} ${d.name}`;
+const initials = n => n.split(' ').map(x => x[0]).join('').slice(0, 2).toLocaleUpperCase('tr');
+const shortName = n => { const p = n.trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[p.length-1][0]}.` : p[0]; };
+
+const STATUS = { pending: 'Onay bekliyor', confirmed: 'Onaylı', attended: 'Geldi', no_show: 'Gelmedi', cancelled: 'İptal' };
+const ERR = {
+  SLOT_TAKEN: 'Bu saat az önce doldu. Lütfen başka bir saat seçin.',
+  SLOT_UNAVAILABLE: 'Bu saat artık müsait değil. Lütfen başka bir saat seçin.',
+  KVKK_REQUIRED: 'Devam etmek için aydınlatma metnini onaylayın.',
+  INVALID_PHONE: 'Geçerli bir telefon numarası girin (05xx xxx xx xx).',
+  INVALID_EMAIL: 'E-posta adresini kontrol edin ya da boş bırakın.',
+  INVALID_NAME: 'Adınızı ve soyadınızı girin.',
+  TOO_MANY_BOOKINGS: 'Bu numarayla zaten 2 aktif randevunuz var. Değişiklik için kliniği arayın.',
+  OVERLAP: 'Bu hekimin o saatte başka randevusu var.',
+  PAST: 'Geçmiş bir saate randevu girilemez.'
+};
+const SERVICES = [
+  ['Muayene ve dolgu', 'Ağız içi muayene, gerekirse röntgen ve çürük tedavisi.'],
+  ['Kanal tedavisi', 'Diş sinirine ulaşan iltihap veya çürüklerde uygulanan tedavi.'],
+  ['Ortodonti', 'Diş ve çene düzensizliklerinde tel veya şeffaf plak tedavisi.'],
+  ['Diş eti tedavisi', 'Diş eti kanaması ve çekilmesinde periodontal tedavi.'],
+  ['İmplant', 'Eksik dişlerin yerine çene kemiğine yerleştirilen yapay kök.'],
+  ['Diş taşı temizliği', 'Diş taşlarının ve renklenmelerin profesyonel temizliği.']
+];
+const PALETTE = ['#0E7490', '#1D4ED8', '#6D28D9', '#BE185D', '#B45309', '#15803D', '#1F2937'];
+const FONTS = {
+  modern:  { label: 'Modern',  css: '"Bricolage Grotesque", "Manrope", system-ui, sans-serif' },
+  klasik:  { label: 'Klasik',  css: '"Newsreader", Georgia, "Times New Roman", serif' },
+  yumusak: { label: 'Yumuşak', css: '"Nunito", "Manrope", system-ui, sans-serif' }
+};
+const TOOTH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 3C4.7 3 3 5 3 7.6c0 2 .8 3.4 1.4 5 .6 1.7.8 3.6 1.3 5.6.4 1.7 1 2.8 2 2.8 1.3 0 1.5-2 1.8-3.6.2-1.3.6-2.4 1.5-2.4h2c.9 0 1.3 1.1 1.5 2.4.3 1.6.5 3.6 1.8 3.6 1 0 1.6-1.1 2-2.8.5-2 .7-3.9 1.3-5.6.6-1.6 1.4-3 1.4-5C21 5 19.3 3 16.8 3c-1.8 0-3 1-4.8 1S9 3 7.2 3z"/></svg>';
+
+/* ------------------------------------------------------------------ state */
+let S;
+function seed() {
+  const WEEK = [['09:00','12:30'],['13:30','18:00']];
+  const mk = sat => { const h = {}; for (let i = 1; i <= 5; i++) h[i] = WEEK.map(r => [...r]); if (sat) h[6] = [['10:00','14:00']]; return h; };
+  const st = {
+    clinic: { name: 'Örnek Diş Kliniği', domain: 'ornekdis.com.tr', color: '#0E7490', font: 'modern', district: 'Kadıköy',
+      phone: '0212 000 00 00', wa: '905320000000', address: 'Örnek Mah. Demo Cad. No:1, Kadıköy / İstanbul',
+      reviewUrl: 'https://g.page/r/ornek-dis/review', reminderHours: 24, autoConfirm: true },
+    doctors: [
+      { id: 'd1', title: 'Uzm. Dt.', name: 'Ayşe Demir', spec: 'Ortodonti', color: '#9333EA', slot: 30,
+        bio: 'Diş teli ve şeffaf plak tedavileri alanında çalışmaktadır.', hours: mk(true) },
+      { id: 'd2', title: 'Dt.', name: 'Mehmet Kaya', spec: 'Genel Diş Hekimliği', color: '#EA580C', slot: 30,
+        bio: 'Muayene, dolgu ve kanal tedavisi yapmaktadır.', hours: mk(true) },
+      { id: 'd3', title: 'Dr. Dt.', name: 'Zeynep Arslan', spec: 'Periodontoloji', color: '#0891B2', slot: 45,
+        bio: 'Diş eti tedavileri ve implant cerrahisi alanında çalışmaktadır.', hours: mk(false) }
+    ],
+    timeOff: [], appts: [], mails: []
+  };
+  const names = ['Selin Aydın','Burak Öztürk','Merve Yıldız','Hakan Çelik','Deniz Koç','Can Erdem','Gizem Polat','Oğuz Tan',
+    'Ece Şahin','Kerem Aksoy','Buse Kurt','Emre Doğan','Nazlı Güneş','Tolga Arı','İrem Bulut','Serkan Uçar','Pelin Ateş','Mert Kılıç'];
+  const tr = s => s.toLocaleLowerCase('tr').replace(/ı/g,'i').replace(/ş/g,'s').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ö/g,'o').replace(/ç/g,'c').replace(/\s+/g,'.');
+  let r = 11, ni = 0;
+  const rnd = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+  const now = Date.now();
+  for (let off = -1; off <= 6; off++) {
+    const ds = ymd(addDays(new Date(), off));
+    for (const doc of st.doctors) {
+      for (const sl of rawSlots(doc, ds)) {
+        if (rnd() > (off <= 1 ? 0.4 : 0.24)) continue;
+        const name = names[ni++ % names.length];
+        const phone = '+905' + String(300000000 + Math.floor(rnd() * 599999999)).slice(0, 9);
+        const email = rnd() < .6 ? tr(name) + '@example.com' : null;
+        const past = sl.e <= now;
+        const status = past ? (rnd() < .88 ? 'attended' : 'no_show') : (rnd() < .06 ? 'cancelled' : 'confirmed');
+        const source = rnd() < .7 ? 'web' : 'panel';
+        const created = Math.min(sl.s - 86400000 * (1 + Math.floor(rnd() * 5)), now - 3600000);
+        const a = { id: uid(), token: uid(), doctorId: doc.id, start: sl.s, end: sl.e, name, phone, email, note: null,
+          status, source, createdAt: created, kvkkAt: source === 'web' ? created : null, attendedAt: status === 'attended' ? sl.e : null };
+        st.appts.push(a);
+        if (email) {
+          st.mails.push({ id: uid(), type: 'confirm', apptId: a.id, to: email, at: created });
+          if (status !== 'cancelled') st.mails.push({ id: uid(), type: 'reminder', apptId: a.id, to: email, at: Math.max(created, sl.s - 24 * 3600000) });
+          if (status === 'attended') st.mails.push({ id: uid(), type: 'review', apptId: a.id, to: email, at: sl.e + 2 * 3600000 });
+        }
+      }
+    }
+  }
+  const nextWed = addDays(mondayOf(new Date()), 9);
+  st.timeOff.push({ id: uid(), doctorId: 'd3', start: at(ymd(nextWed), '13:00').getTime(), end: at(ymd(nextWed), '18:00').getTime(), reason: 'Kongre' });
+  return st;
+}
+function rawSlots(doc, ds) {
+  const out = [];
+  for (const [a, b] of (doc.hours[isoDow(at(ds, '00:00'))] || [])) {
+    let t = at(ds, a).getTime(); const end = at(ds, b).getTime(); const step = doc.slot * 60000;
+    while (t + step <= end) { out.push({ s: t, e: t + step }); t += step; }
+  }
+  return out;
+}
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) S = JSON.parse(raw); } catch (e) { S = null; }
+  if (!S || !S.clinic || !Array.isArray(S.appts)) S = seed();
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const docById = id => S.doctors.find(d => d.id === id);
+
+/* ----------------------------------------------------- booking rules
+   Veritabanındaki get_available_slots / book_appointment ile aynı kurallar */
+function daySlots(doc, ds, forPanel = false) {
+  const now = Date.now(), lead = forPanel ? now : now + 60 * 60000, horizon = now + 60 * 86400000;
+  return rawSlots(doc, ds).map(({ s, e }) => {
+    let state = 'free';
+    if (s < lead || s > horizon) state = 'past';
+    else if (S.timeOff.some(o => (!o.doctorId || o.doctorId === doc.id) && o.start < e && o.end > s)) state = 'off';
+    else if (S.appts.some(x => x.doctorId === doc.id && x.status !== 'cancelled' && x.start < e && x.end > s)) state = 'taken';
+    return { s, e, state };
+  });
+}
+function nextFree(doc) {
+  for (let i = 0; i < 21; i++) { const f = daySlots(doc, ymd(addDays(new Date(), i))).find(x => x.state === 'free'); if (f) return f.s; }
+  return null;
+}
+function normPhone(p) {
+  let d = String(p || '').replace(/\D/g, '');
+  if (/^90\d{10}$/.test(d)) d = d.slice(2); else if (/^0\d{10}$/.test(d)) d = d.slice(1);
+  return /^[2-5]\d{9}$/.test(d) ? '+90' + d : null;
+}
+function book({ doctorId, start, name, phone, email, note, kvkk, source }) {
+  if (source === 'web' && !kvkk) return { err: 'KVKK_REQUIRED' };
+  name = String(name || '').trim().replace(/\s+/g, ' ');
+  if (name.length < 2 || name.length > 80) return { err: 'INVALID_NAME' };
+  const p = normPhone(phone); if (!p) return { err: 'INVALID_PHONE' };
+  email = String(email || '').trim().toLowerCase() || null;
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { err: 'INVALID_EMAIL' };
+  const doc = docById(doctorId);
+  const slot = daySlots(doc, ymd(new Date(start)), source === 'panel').find(x => x.s === start);
+  if (!slot) return { err: 'SLOT_UNAVAILABLE' };
+  if (slot.state === 'taken') return { err: source === 'web' ? 'SLOT_TAKEN' : 'OVERLAP' };
+  if (slot.state === 'past') return { err: source === 'web' ? 'SLOT_UNAVAILABLE' : 'PAST' };
+  if (slot.state !== 'free') return { err: 'SLOT_UNAVAILABLE' };
+  if (source === 'web' && S.appts.filter(a => a.phone === p && ['pending','confirmed'].includes(a.status) && a.start > Date.now()).length >= 2)
+    return { err: 'TOO_MANY_BOOKINGS' };
+  const now = Date.now();
+  const a = { id: uid(), token: uid(), doctorId, start, end: slot.e, name, phone: p, email, note: String(note || '').trim() || null,
+    status: source === 'web' && !S.clinic.autoConfirm ? 'pending' : 'confirmed', source, createdAt: now,
+    kvkkAt: source === 'web' ? now : null, attendedAt: null };
+  S.appts.push(a);
+  if (email) {
+    S.mails.push({ id: uid(), type: 'confirm', apptId: a.id, to: email, at: now });
+    S.mails.push({ id: uid(), type: 'reminder', apptId: a.id, to: email, at: Math.max(now, start - S.clinic.reminderHours * 3600000) });
+  }
+  save();
+  return { ok: true, a };
+}
+function setStatus(id, status, by = 'panel') {
+  const a = S.appts.find(x => x.id === id); if (!a) return;
+  a.status = status;
+  if (status === 'attended') {
+    a.attendedAt = Date.now();
+    if (a.email && S.clinic.reviewUrl && !S.mails.some(m => m.apptId === a.id && m.type === 'review'))
+      S.mails.push({ id: uid(), type: 'review', apptId: a.id, to: a.email, at: Date.now() + 2 * 3600000 });
+  }
+  if (status === 'cancelled') S.mails.forEach(m => { if (m.apptId === a.id && m.at > Date.now()) m.cancelled = true; });
+  save();
+  if (by === 'patient') {
+    toast(`${shortName(a.name)} randevusunu iptal etti · ${fmtLong(a.start)}`, 'Panelde göster', () => showInPanel(a));
+    markPanelDot();
+  }
+}
+
+/* ------------------------------------------------------- patient site */
+function renderSite() {
+  const c = S.clinic;
+  $('#url').innerHTML = `<b>${esc(c.domain)}</b>`;
+  const quick = S.doctors.map(d => {
+    const f = nextFree(d);
+    const ds = f ? ymd(new Date(f)) : '';
+    const when = f ? (relDay(ds) || `${new Date(f).getDate()} ${MONTHS[new Date(f).getMonth()].slice(0,3)}`) : '';
+    return `<div class="qrow"><span class="av sm" style="background:${d.color}">${initials(d.name)}</span>
+      <div><b>${esc(docLabel(d))}</b><small>${esc(d.spec)}</small></div>
+      ${f ? `<button class="qslot tnum" data-act="quick" data-doc="${d.id}" data-s="${f}">${hm(f)}<span>${when}</span></button>` : '<small>Yakında boş saat yok</small>'}</div>`;
+  }).join('');
+  $('#site').innerHTML = `
+  <header class="s-head"><div class="s-in">
+    <div class="logo"><span class="mark">${TOOTH}</span><span>${esc(c.name)}</span></div>
+    <nav class="s-nav" aria-label="Site"><button data-act="scrollTo" data-t="s-svc">Tedaviler</button><button data-act="scrollTo" data-t="s-docs">Hekimler</button><button data-act="scrollTo" data-t="s-contact">İletişim</button></nav>
+    <span class="s-phone tnum">${esc(c.phone)}</span>
+    <button class="btn" data-act="book">Randevu al</button>
+  </div></header>
+  <section class="s-hero"><div class="s-in s-hero-in">
+    <div>
+      <p class="eyebrow">${esc(c.district)} · İstanbul</p>
+      <h1>Diş hekiminizden online randevu alın.</h1>
+      <p class="sub">Hekiminizi ve size uygun saati seçin, randevunuz anında oluşsun. Dilerseniz e-posta ile hatırlatma alırsınız.</p>
+      <div class="cta">
+        <button class="btn lg" data-act="book">Online randevu al</button>
+        <a class="btn lg line" href="https://wa.me/${esc(c.wa)}" target="_blank" rel="noopener">WhatsApp'tan yazın</a>
+      </div>
+      <div class="facts">
+        <div class="fact"><small>Hafta içi</small><b class="tnum">09:00 – 18:00</b></div>
+        <div class="fact"><small>Cumartesi</small><b class="tnum">10:00 – 14:00</b></div>
+        <div class="fact"><small>Konum</small><b>${esc(c.district)}</b></div>
+      </div>
+    </div>
+    <aside class="quick" aria-label="En yakın boş saatler">
+      <div class="quick-h"><b>En yakın boş saatler</b><small>Canlı</small></div>
+      ${quick}
+      <p class="hint" style="margin:10px 0 0">Saate dokunun, bilgilerinizi girin; randevunuz oluşsun.</p>
+    </aside>
+  </div></section>
+  <section class="s-sec" id="s-svc"><div class="s-in">
+    <h2>Tedaviler</h2>
+    <p class="lead">Kliniğimizde uygulanan başlıca tedaviler. Size uygun tedavi, muayene sonrası hekiminizle birlikte belirlenir.</p>
+    <div class="svc">${SERVICES.map(([t, d]) => `<div><b>${t}</b><span>${d}</span></div>`).join('')}</div>
+  </div></section>
+  <section class="s-sec" id="s-docs"><div class="s-in">
+    <h2>Hekimlerimiz</h2>
+    <p class="lead">Randevu almak istediğiniz hekimi seçebilirsiniz.</p>
+    <div class="docs">${S.doctors.map(d => `
+      <article class="doc">
+        <div class="av" style="background:${d.color}">${initials(d.name)}</div>
+        <div>
+          <h3>${esc(docLabel(d))}</h3>
+          <div class="spec">${esc(d.spec)}</div>
+          <p>${esc(d.bio)}</p>
+          <button class="btn sec" data-act="book" data-doc="${d.id}">Bu hekimden randevu al</button>
+        </div>
+      </article>`).join('')}
+    </div>
+  </div></section>
+  <section class="s-sec" id="s-contact"><div class="s-in">
+    <h2>Çalışma saatleri ve iletişim</h2>
+    <p class="lead">Randevusuz gelmeden önce lütfen arayarak bilgi alın.</p>
+    <div class="s-contact">
+      <table class="hours tnum"><tbody>
+        <tr><td>Pazartesi – Cuma</td><td>09:00 – 18:00</td></tr>
+        <tr><td>Öğle arası</td><td>12:30 – 13:30</td></tr>
+        <tr><td>Cumartesi</td><td>10:00 – 14:00</td></tr>
+        <tr><td>Pazar</td><td>Kapalı</td></tr>
+      </tbody></table>
+      <div class="contact">
+        <div><small>Adres</small><span style="text-align:right">${esc(c.address)}</span></div>
+        <div><small>Telefon</small><b class="tnum" style="user-select:all">${esc(c.phone)}</b></div>
+        <div><small>WhatsApp</small><a href="https://wa.me/${esc(c.wa)}" target="_blank" rel="noopener">Mesaj gönder</a></div>
+        <div><small>Yol tarifi</small><a href="https://maps.google.com/?q=Kad%C4%B1k%C3%B6y+%C4%B0stanbul" target="_blank" rel="noopener">Google Haritalar'da aç</a></div>
+      </div>
+    </div>
+  </div></section>
+  <footer class="s-foot"><div class="s-in">
+    <div><button class="link" data-act="kvkk">KVKK Aydınlatma Metni</button></div>
+    <div>© 2026 ${esc(c.name)}. Bu sitedeki bilgiler genel bilgilendirme amaçlıdır; tanı ve tedavi için hekiminize başvurunuz.</div>
+    <div>Demo içeriktir, hayali bir kliniği temsil eder.</div>
+  </div></footer>`;
+}
+
+let B = null;
+function openBooking(docId) {
+  B = { mode: 'book', step: docId ? 2 : 1, doctorId: docId || null, date: null, slot: null,
+        f: { name: '', phone: '', email: '', note: '', kvkk: false }, err: null, month: 0 };
+  renderSheet();
+}
+function closeSheet() { B = null; renderSheet(); }
+function renderSheet() {
+  const scrim = $('#sheet-scrim'), el = $('#sheet');
+  if (!B) { scrim.hidden = true; el.innerHTML = ''; return; }
+  scrim.hidden = false;
+  if (B.mode === 'kvkk') { el.innerHTML = sheetFrame('Aydınlatma metni', kvkkHtml(), false); return; }
+  if (B.mode === 'done') { el.innerHTML = sheetFrame('Randevu', doneHtml(), false); return; }
+  if (B.mode === 'cancel') { el.innerHTML = sheetFrame('Randevu iptali', cancelHtml(), false); return; }
+  const labels = ['Hekim', 'Gün', 'Saat', 'Bilgiler'];
+  const steps = `<ol class="steps">${labels.map((l, i) => `<li class="${i + 1 === B.step ? 'on' : i + 1 < B.step ? 'past' : ''}">${l}</li>`).join('')}</ol>`;
+  el.innerHTML = sheetFrame('Online randevu', [null, step1, step2, step3, step4][B.step](), B.step > 1, steps);
+}
+function sheetFrame(title, body, back, extra = '') {
+  return `<div class="sh-head">
+      ${back ? '<button class="icon-btn" data-act="back" aria-label="Geri">←</button>' : '<span></span>'}
+      <b>${title}</b>
+      <button class="icon-btn" data-act="close" aria-label="Kapat">×</button>
+    </div>${extra}<div class="sh-body">${body}</div>`;
+}
+function step1() {
+  return `<h3>Hangi hekimden randevu almak istersiniz?</h3><div class="pick">${S.doctors.map(d => `
+    <button class="opt ${B.doctorId === d.id ? 'sel' : ''}" data-act="pickDoc" data-doc="${d.id}">
+      <span class="av sm" style="background:${d.color}">${initials(d.name)}</span>
+      <span><b>${esc(docLabel(d))}</b><small>${esc(d.spec)} · ${d.slot} dk</small></span>
+      <span class="chev">›</span>
+    </button>`).join('')}</div>`;
+}
+function step2() {
+  const doc = docById(B.doctorId);
+  const today = midnight(new Date());
+  const start = addDays(mondayOf(today), B.month * 28);
+  let cells = DAYS_S.map(d => `<div class="wd">${d}</div>`).join('');
+  for (let i = 0; i < 28; i++) {
+    const d = addDays(start, i), ds = ymd(d);
+    const free = d < today ? 0 : daySlots(doc, ds).filter(s => s.state === 'free').length;
+    cells += `<button class="day ${ds === ymd(today) ? 'today' : ''} ${B.date === ds ? 'sel' : ''}" data-act="pickDate" data-date="${ds}" ${free ? '' : 'disabled'} aria-label="${fmtDay(d.getTime())}${free ? `, ${free} boş saat` : ', müsait değil'}">
+      <b>${d.getDate()}</b><i>${d < today ? '' : free ? free + ' boş' : isoDow(d) === 7 ? 'kapalı' : 'dolu'}</i></button>`;
+  }
+  const end = addDays(start, 27);
+  const range = start.getMonth() === end.getMonth() ? `${MONTHS[start.getMonth()]} ${start.getFullYear()}` : `${MONTHS[start.getMonth()]} – ${MONTHS[end.getMonth()]} ${end.getFullYear()}`;
+  return `<div class="ctx"><b>${esc(docLabel(doc))}</b> · ${esc(doc.spec)}</div>
+    <h3>Gün seçin</h3>
+    <div class="cal-h"><b>${range}</b>
+      <span class="inline">
+        <button class="nav-btn" data-act="calMove" data-d="-1" ${B.month === 0 ? 'disabled' : ''} aria-label="Önceki 4 hafta">‹</button>
+        <button class="nav-btn" data-act="calMove" data-d="1" ${B.month >= 1 ? 'disabled' : ''} aria-label="Sonraki 4 hafta">›</button>
+      </span></div>
+    <div class="cal tnum">${cells}</div>
+    <p class="hint" style="margin-top:10px">Randevular en erken 1 saat sonrasına ve en fazla 60 gün ilerisine alınabilir.</p>`;
+}
+function step3() {
+  const doc = docById(B.doctorId);
+  const shown = daySlots(doc, B.date).filter(s => s.state !== 'past');
+  const grp = (label, arr) => arr.length ? `<div class="slot-g"><small>${label}</small><div class="slots">${arr.map(s => `
+      <button class="slot ${B.slot === s.s ? 'sel' : ''}" data-act="pickSlot" data-s="${s.s}" ${s.state === 'free' ? '' : 'disabled'} aria-label="${hm(s.s)}${s.state === 'free' ? '' : ', dolu'}">${hm(s.s)}</button>`).join('')}</div></div>` : '';
+  return `<div class="ctx"><b>${esc(docLabel(doc))}</b> · ${fmtDay(at(B.date, '12:00').getTime())} · ${doc.slot} dk</div>
+    ${B.err ? `<div class="err" role="alert">${esc(B.err)}</div>` : ''}
+    <h3>Saat seçin</h3>
+    ${shown.length ? grp('Sabah', shown.filter(s => new Date(s.s).getHours() < 13)) + grp('Öğleden sonra', shown.filter(s => new Date(s.s).getHours() >= 13))
+                   : '<div class="empty">Bu gün için boş saat kalmadı.</div>'}
+    <p class="hint">Üstü çizili saatler dolu.</p>`;
+}
+function step4() {
+  const doc = docById(B.doctorId);
+  return `<div class="ctx"><b>${esc(docLabel(doc))}</b><br>${fmtLong(B.slot)} – ${hm(B.slot + doc.slot * 60000)}</div>
+    ${B.err ? `<div class="err" role="alert">${esc(B.err)}</div>` : ''}
+    <form id="bk-form" novalidate>
+      <div class="field"><label for="bk-name">Ad soyad</label>
+        <input id="bk-name" name="name" autocomplete="name" value="${esc(B.f.name)}" maxlength="80"></div>
+      <div class="field"><label for="bk-phone">Telefon</label>
+        <input id="bk-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx" value="${esc(B.f.phone)}"></div>
+      <div class="field"><label for="bk-email">E-posta <small>(isteğe bağlı)</small></label>
+        <input id="bk-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ornek@mail.com" value="${esc(B.f.email)}">
+        <span class="hint">Bilgilendirme ve hatırlatma almak isterseniz e-posta adresinizi girin.</span></div>
+      <div class="field"><label for="bk-note">Not <small>(isteğe bağlı)</small></label>
+        <textarea id="bk-note" name="note" maxlength="300" placeholder="Ör. ilk muayene, kontrol">${esc(B.f.note)}</textarea></div>
+      <label class="check"><input id="bk-kvkk" name="kvkk" type="checkbox" ${B.f.kvkk ? 'checked' : ''}>
+        <span><button type="button" class="link" data-act="kvkk">Aydınlatma metnini</button> okudum. Randevum için ad, telefon ve e-posta bilgilerimin işlenmesini onaylıyorum.</span></label>
+      <button class="btn lg full" type="submit">Randevuyu oluştur</button>
+    </form>`;
+}
+function doneHtml() {
+  const a = S.appts.find(x => x.id === B.apptId), doc = docById(a.doctorId);
+  return `<div class="done">
+    <div class="ok-ic">✓</div>
+    <h3>${a.status === 'pending' ? 'Randevu talebiniz alındı' : 'Randevunuz oluşturuldu'}</h3>
+    <div class="sum">
+      <div><small>Hekim</small><b>${esc(docLabel(doc))}</b></div>
+      <div><small>Tarih</small><b>${fmtDay(a.start)}</b></div>
+      <div><small>Saat</small><b class="tnum">${hm(a.start)} – ${hm(a.end)}</b></div>
+      <div><small>Adres</small><b>${esc(S.clinic.address)}</b></div>
+    </div>
+    <p class="note">${a.email
+      ? `Onay e-postası <b>${esc(a.email)}</b> adresine gönderildi. Randevunuzdan ${S.clinic.reminderHours} saat önce hatırlatma alacaksınız. E-postadaki bağlantıyla randevunuzu iptal edebilirsiniz.`
+      : 'E-posta bırakmadığınız için hatırlatma gönderilmeyecek. Randevunuz sisteme kaydedildi; değişiklik için kliniği arayabilirsiniz.'}</p>
+    <div class="stack">
+      <button class="btn lg full sec" data-act="openCancel" data-token="${a.token}">${a.email ? 'E-postadaki iptal bağlantısını dene' : 'Randevuyu iptal et'}</button>
+      <button class="btn lg full" data-act="close">Siteye dön</button>
+    </div></div>`;
+}
+function cancelHtml() {
+  const a = S.appts.find(x => x.token === B.token);
+  if (!a) return '<div class="empty">Randevu bulunamadı.</div>';
+  const doc = docById(a.doctorId);
+  const can = ['pending','confirmed'].includes(a.status) && a.start > Date.now();
+  const sum = `<div class="sum">
+      <div><small>Hekim</small><b>${esc(docLabel(doc))}</b></div>
+      <div><small>Tarih</small><b>${fmtLong(a.start)}</b></div>
+      <div><small>Durum</small><b>${STATUS[a.status]}</b></div></div>`;
+  if (a.status === 'cancelled') return `<div class="done"><div class="ok-ic">✓</div><h3>Randevunuz iptal edildi</h3>${sum}
+      <p class="note">Bu saat diğer hastalar için yeniden açıldı.</p><button class="btn lg full" data-act="close">Siteye dön</button></div>`;
+  if (!can) return `${sum}<p class="note">Bu randevu artık iptal edilemiyor. Lütfen kliniği arayın: <b class="tnum">${esc(S.clinic.phone)}</b></p>`;
+  return `<h3>Randevunuzu iptal etmek istiyor musunuz?</h3>${sum}
+    <div class="stack">${B.confirm
+      ? `<p class="note">İptal ettiğinizde bu saat başka hastalara açılır. Onaylıyor musunuz?</p>
+         <button class="btn lg full" style="background:var(--bad)" data-act="doCancel">Evet, iptal et</button>
+         <button class="btn lg full sec" data-act="cancelNo">Vazgeç</button>`
+      : `<button class="btn lg full" style="background:var(--bad)" data-act="cancelAsk">Randevuyu iptal et</button>
+         <button class="btn lg full sec" data-act="close">Randevumu koru</button>`}</div>`;
+}
+function kvkkHtml() {
+  return `<div class="kvkk-text">
+    <p><b>${esc(S.clinic.name)}</b> olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu sıfatıyla aşağıdaki bilgileri paylaşırız.</p>
+    <p><b>İşlenen veriler:</b> Ad soyad, telefon numarası, isteğe bağlı olarak e-posta adresi ve randevu bilgileri (hekim, tarih, saat).</p>
+    <p><b>Amaç:</b> Randevunuzun oluşturulması, yönetilmesi ve e-posta bırakmanız hâlinde hatırlatma yapılması.</p>
+    <p><b>Sağlık verisi:</b> Bu form üzerinden tedavi veya sağlık bilgisi toplanmaz.</p>
+    <p><b>Haklarınız:</b> Kanunun 11. maddesi kapsamındaki taleplerinizi kliniğimize iletebilirsiniz.</p>
+    <p class="hint">Demo metnidir. Gerçek kurulumda her klinik için hukuki danışmanla hazırlanır.</p>
+    <button class="btn lg full" data-act="kvkkBack">Anladım</button></div>`;
+}
+
+/* ---------------------------------------------------------------- panel */
+const P = { tab: 'day', day: ymd(new Date()), week: ymd(mondayOf(new Date())), docFilter: 'all', drawer: null, na: null, flashId: null };
+const TABS = [['day','Günlük'],['week','Haftalık takvim'],['doctors','Hekimler'],['off','İzinler'],['mail','Bildirimler'],['settings','Görünüm ve ayarlar']];
+
+function renderPanel() {
+  const pending = S.appts.filter(a => a.status === 'pending').length;
+  $('#panel').innerHTML = `
+    <div class="p-top">
+      <div class="p-id"><span class="mark">${TOOTH}</span>
+        <div><b id="p-clinic">${esc(S.clinic.name)}</b><small>Randevu paneli · sekreter@${esc(S.clinic.domain)}</small></div></div>
+      <button class="btn" data-act="newAppt">+ Telefonla gelen randevu</button>
+    </div>
+    <nav class="p-nav" aria-label="Panel">${TABS.map(([k, l]) => `<button data-act="tab" data-tab="${k}" ${P.tab === k ? 'aria-current="page"' : ''}>${l}${k === 'day' && pending ? `<span class="cnt">${pending}</span>` : ''}</button>`).join('')}</nav>
+    <div class="p-body">${({ day: pDay, week: pWeek, doctors: pDoctors, off: pOff, mail: pMail, settings: pSettings })[P.tab]()}</div>`;
+  if (P.flashId) { const r = document.querySelector(`[data-row="${P.flashId}"]`); if (r) { r.classList.add('flash'); r.scrollIntoView({ block: 'nearest' }); } P.flashId = null; }
+}
+const pill = s => `<span class="pill st-${s}">${STATUS[s]}</span>`;
+function pDay() {
+  const list = S.appts.filter(a => ymd(new Date(a.start)) === P.day).sort((a, b) => a.start - b.start || a.doctorId.localeCompare(b.doctorId));
+  const cnt = s => list.filter(a => a.status === s).length;
+  const rel = relDay(P.day);
+  const now = Date.now();
+  const rows = list.map(a => {
+    const d = docById(a.doctorId);
+    const act = ['pending','confirmed'].includes(a.status)
+      ? `${a.status === 'pending' ? `<button class="mini pri" data-act="status" data-id="${a.id}" data-s="confirmed">Onayla</button>` : ''}
+         <button class="mini ok" data-act="status" data-id="${a.id}" data-s="attended">Geldi</button>
+         <button class="mini warn" data-act="status" data-id="${a.id}" data-s="no_show">Gelmedi</button>` : '';
+    return `<div class="row ${a.status === 'cancelled' ? 'is-cancelled' : ''} ${a.start <= now && a.end > now ? 'now' : ''}" data-act="open" data-id="${a.id}" data-row="${a.id}">
+      <div class="r-time"><b>${hm(a.start)}</b><small>${hm(a.end)}</small></div>
+      <div><div class="r-name">${esc(a.name)} <span class="src">${a.source === 'web' ? 'Web' : 'Telefon'}</span></div>
+        <div class="r-sub"><span class="ddot" style="background:${d.color}"></span>${esc(docLabel(d))} · <span class="tnum">${fmtPhone(a.phone)}</span>${a.note ? ` · “${esc(a.note)}”` : ''}</div></div>
+      <div class="r-right">${pill(a.status)}${act}</div></div>`;
+  }).join('');
+  return `<div class="p-head">
+      <h2>${rel ? rel + ', ' : ''}${fmtDay(at(P.day, '12:00').getTime())}</h2>
+      <button class="nav-btn" data-act="dayMove" data-d="-1" aria-label="Önceki gün">‹</button>
+      <button class="ghost" data-act="dayToday">Bugün</button>
+      <button class="nav-btn" data-act="dayMove" data-d="1" aria-label="Sonraki gün">›</button>
+    </div>
+    <div class="stats">
+      <span class="stat"><b>${list.filter(a => a.status !== 'cancelled').length}</b> randevu</span>
+      <span class="stat"><b>${cnt('confirmed') + cnt('pending')}</b> bekleniyor</span>
+      <span class="stat"><b>${cnt('attended')}</b> geldi</span>
+      <span class="stat"><b>${cnt('no_show')}</b> gelmedi</span>
+      <span class="stat"><b>${cnt('cancelled')}</b> iptal</span>
+    </div>
+    ${list.length ? `<div class="list">${rows}</div>` : `<div class="empty">Bu gün için randevu yok.</div>`}`;
+}
+function pWeek() {
+  const start = at(P.week, '00:00');
+  const chips = `<div class="chips"><button class="chip" data-act="docFilter" data-doc="all" aria-pressed="${P.docFilter === 'all'}">Tüm hekimler</button>${S.doctors.map(d =>
+    `<button class="chip" data-act="docFilter" data-doc="${d.id}" aria-pressed="${P.docFilter === d.id}"><span class="ddot" style="background:${d.color}"></span>${esc(d.title + ' ' + d.name.split(' ')[0])}</button>`).join('')}</div>`;
+  let cols = '';
+  for (let i = 0; i < 6; i++) {
+    const d = addDays(start, i), ds = ymd(d);
+    const items = S.appts.filter(a => ymd(new Date(a.start)) === ds && (P.docFilter === 'all' || a.doctorId === P.docFilter)).sort((a, b) => a.start - b.start);
+    const offs = S.timeOff.filter(o => ymd(new Date(o.start)) === ds && (P.docFilter === 'all' || !o.doctorId || o.doctorId === P.docFilter));
+    cols += `<div class="wcol ${ds === ymd(new Date()) ? 'today' : ''}">
+      <div class="wh"><b>${DAYS_S[i]} ${d.getDate()}</b><small>${items.filter(a => a.status !== 'cancelled').length}</small></div>
+      <div class="wbody">
+        ${offs.map(o => `<div class="wi off"><span class="t">${hm(o.start)}–${hm(o.end)}</span><span class="n">${o.doctorId ? esc(docById(o.doctorId).name.split(' ')[0]) : 'Klinik'} · ${esc(o.reason || 'İzin')}</span></div>`).join('')}
+        ${items.map(a => { const doc = docById(a.doctorId); return `<button class="wi ${a.status === 'cancelled' ? 'cx' : ''} st-${a.status}-b" data-act="open" data-id="${a.id}">
+          <span class="t"><span class="ddot" style="background:${doc.color}"></span>${hm(a.start)}</span><span class="n">${esc(shortName(a.name))}</span></button>`; }).join('')}
+      </div></div>`;
+  }
+  const end = addDays(start, 5);
+  return `<div class="p-head"><h2>${start.getDate()} ${MONTHS[start.getMonth()]} – ${end.getDate()} ${MONTHS[end.getMonth()]}</h2>
+      <button class="nav-btn" data-act="weekMove" data-d="-1" aria-label="Önceki hafta">‹</button>
+      <button class="ghost" data-act="weekToday">Bu hafta</button>
+      <button class="nav-btn" data-act="weekMove" data-d="1" aria-label="Sonraki hafta">›</button></div>
+    ${chips}<div class="week-scroll"><div class="week">${cols}</div></div>`;
+}
+function hoursText(h) {
+  const r = x => (x || []).map(([a, b]) => `${a}–${b}`).join(', ');
+  return `<dt>Pzt–Cum</dt><dd>${r(h[1])}</dd><dt>Cumartesi</dt><dd>${h[6] ? r(h[6]) : 'Çalışmıyor'}</dd><dt>Pazar</dt><dd>Kapalı</dd>`;
+}
+function pDoctors() {
+  return `<div class="p-head"><h2>Hekimler ve çalışma saatleri</h2></div>
+    <p class="explain">Randevu süresini veya cumartesi çalışmasını değiştirdiğinizde web sitesindeki boş saatler anında güncellenir.</p>
+    <div class="cards">${S.doctors.map(d => {
+      const upcoming = S.appts.filter(a => a.doctorId === d.id && a.start > Date.now() && a.status !== 'cancelled').length;
+      return `<div class="card">
+        <div class="card-h"><span class="av sm" style="background:${d.color}">${initials(d.name)}</span><div><b>${esc(docLabel(d))}</b><small>${esc(d.spec)}</small></div></div>
+        <dl class="kv">${hoursText(d.hours)}<dt>Gelecek randevu</dt><dd>${upcoming}</dd></dl>
+        <div class="inline"><label for="slot-${d.id}">Randevu süresi</label>
+          <select id="slot-${d.id}" data-change="slot" data-doc="${d.id}">${[15,20,30,45,60].map(m => `<option value="${m}" ${d.slot === m ? 'selected' : ''}>${m} dk</option>`).join('')}</select></div>
+        <label class="inline"><input type="checkbox" id="sat-${d.id}" data-change="sat" data-doc="${d.id}" ${d.hours[6] ? 'checked' : ''}> Cumartesi 10:00–14:00 çalışır</label>
+      </div>`; }).join('')}</div>`;
+}
+function pOff() {
+  const list = S.timeOff.filter(o => o.end > Date.now()).sort((a, b) => a.start - b.start);
+  const tmr = ymd(addDays(new Date(), 1));
+  return `<div class="p-head"><h2>İzinler ve kapalı günler</h2></div>
+    <p class="explain">Girdiğiniz saatler web sitesinde anında kapanır. Mevcut randevular silinmez; gerekirse hastayı arayıp taşıyın.</p>
+    <form class="form-grid" id="off-form">
+      <div class="field"><label for="off-doc">Kim</label><select id="off-doc"><option value="">Tüm klinik</option>${S.doctors.map(d => `<option value="${d.id}">${esc(docLabel(d))}</option>`).join('')}</select></div>
+      <div class="field"><label for="off-date">Tarih</label><input id="off-date" type="date" value="${tmr}" min="${ymd(new Date())}"></div>
+      <div class="field"><label for="off-span">Süre</label><select id="off-span"><option value="09:00-18:00">Tüm gün</option><option value="09:00-13:00">Sabah (09:00–13:00)</option><option value="13:00-18:00">Öğleden sonra (13:00–18:00)</option></select></div>
+      <div class="field"><label for="off-reason">Açıklama</label><input id="off-reason" placeholder="Ör. izin, kongre, bayram"></div>
+      <button class="btn" type="submit">Kapat</button>
+    </form>
+    ${list.length ? `<div class="list">${list.map(o => {
+      const affected = S.appts.filter(a => a.status !== 'cancelled' && (!o.doctorId || a.doctorId === o.doctorId) && a.start < o.end && a.end > o.start).length;
+      return `<div class="row" style="cursor:default"><div class="r-time"><b>${new Date(o.start).getDate()} ${MONTHS[new Date(o.start).getMonth()].slice(0,3)}</b><small>${hm(o.start)}–${hm(o.end)}</small></div>
+        <div><div class="r-name">${o.doctorId ? esc(docLabel(docById(o.doctorId))) : 'Tüm klinik'}</div><div class="r-sub">${esc(o.reason || 'İzin')}${affected ? ` · <b style="color:var(--warn)">${affected} mevcut randevu bu aralıkta</b>` : ''}</div></div>
+        <div class="r-right"><button class="mini bad" data-act="offDel" data-id="${o.id}">Kaldır</button></div></div>`; }).join('')}</div>`
+      : '<div class="empty">Planlanmış izin yok.</div>'}`;
+}
+const MAILT = { confirm: ['✉', 'Randevu onayı'], reminder: ['⏰', 'Randevu hatırlatma'], review: ['★', 'Google yorum isteği'] };
+function pMail() {
+  const now = Date.now();
+  const list = [...S.mails].sort((a, b) => b.at - a.at).slice(0, 40);
+  const sent = S.mails.filter(m => !m.cancelled && m.at <= now).length, planned = S.mails.filter(m => !m.cancelled && m.at > now).length;
+  return `<div class="p-head"><h2>Bildirimler</h2></div>
+    <p class="explain">Mailler yalnızca e-posta bırakan hastalara gider. Hatırlatma randevudan ${S.clinic.reminderHours} saat önce, Google yorum isteği hasta "Geldi" olarak işaretlendikten 2 saat sonra gönderilir. Bir satıra tıklayarak mailin içeriğini görebilirsiniz.</p>
+    <div class="stats"><span class="stat"><b>${sent}</b> gönderildi</span><span class="stat"><b>${planned}</b> planlandı</span></div>
+    <div class="list">${list.map(m => {
+      const a = S.appts.find(x => x.id === m.apptId); if (!a) return '';
+      const [ic, label] = MAILT[m.type];
+      const st = m.cancelled ? '<span class="pill st-cancelled">Durduruldu</span>' : m.at <= now ? '<span class="pill st-attended">Gönderildi</span>' : '<span class="pill st-pending">Planlandı</span>';
+      return `<button class="mail" data-act="mail" data-id="${m.id}"><span class="ic">${ic}</span><span><b>${label} · ${esc(a.name)}</b><small>${esc(m.to)} · ${m.at <= now ? '' : 'gönderim: '}${fmtLong(m.at)}</small></span>${st}</button>`;
+    }).join('')}</div>`;
+}
+function pSettings() {
+  const c = S.clinic;
+  return `<div class="p-head"><h2>Görünüm ve ayarlar</h2></div>
+    <p class="explain">Her klinik kendi adı, rengi, yazı stili ve alan adıyla yayında olur. Değişiklikler web sitesine anında yansır; "Web sitesi" sekmesinden bakabilirsiniz.</p>
+    <div class="set">
+      <div class="field"><label for="set-name">Klinik adı</label><input id="set-name" data-set="name" value="${esc(c.name)}" maxlength="44"></div>
+      <div class="field"><label for="set-district">Semt</label><input id="set-district" data-set="district" value="${esc(c.district)}" maxlength="24"></div>
+      <div class="field"><label for="set-domain">Alan adı</label><input id="set-domain" data-set="domain" value="${esc(c.domain)}" maxlength="40"><span class="hint">Kurulumda kliniğin kendi alan adı bağlanır.</span></div>
+      <div class="field"><label>Marka rengi</label><div class="swatches">
+        ${PALETTE.map(p => `<button class="sw" style="background:${p}" data-act="color" data-c="${p}" aria-label="Renk ${p}" aria-pressed="${c.color.toLowerCase() === p.toLowerCase()}"></button>`).join('')}
+        <input type="color" id="set-color" data-set="color" value="${esc(c.color)}" aria-label="Özel renk"></div></div>
+      <div class="field"><label>Yazı stili</label><div class="fonts">
+        ${Object.entries(FONTS).map(([k, f]) => `<button class="fontopt" data-act="font" data-f="${k}" aria-pressed="${c.font === k}"><b style="font-family:${f.css}">Aa Diş</b><small>${f.label}</small></button>`).join('')}</div></div>
+      <div class="field"><label for="set-review">Google yorum bağlantısı</label><input id="set-review" data-set="reviewUrl" value="${esc(c.reviewUrl)}"></div>
+      <div class="field"><label for="set-rem">Hatırlatma zamanı</label><select id="set-rem" data-set="reminderHours">
+        ${[12, 24, 48].map(h => `<option value="${h}" ${c.reminderHours === h ? 'selected' : ''}>Randevudan ${h} saat önce</option>`).join('')}</select></div>
+      <label class="check" style="margin:0"><input type="checkbox" id="set-auto" data-set="autoConfirm" ${c.autoConfirm ? 'checked' : ''}>
+        <span><b style="color:var(--ink)">Web randevularını otomatik onayla.</b> Kapalıysa yeni randevular "Onay bekliyor" olarak düşer ve sekreter onaylar.</span></label>
+      <div class="field"><label>Ek paketler</label><div class="addon">
+        <div><b>SMS / WhatsApp hatırlatma</b><span>Yakında</span></div>
+        <div><b>Google Haritalar profil düzenleme</b><span>Ek paket</span></div>
+        <div><b>SEO ve içerik güncelleme</b><span>Ek paket</span></div>
+      </div></div>
+    </div>`;
+}
+
+/* ------------------------------------------------------------- mails */
+function mailHtml(m) {
+  const a = S.appts.find(x => x.id === m.apptId), d = docById(a.doctorId), c = S.clinic;
+  const first = a.name.split(' ')[0];
+  const box = `<div class="em-box"><div>Hekim: <b>${esc(docLabel(d))}</b></div><div>Tarih: <b>${fmtDay(a.start)}</b></div><div>Saat: <b>${hm(a.start)}</b></div><div>Adres: <b>${esc(c.address)}</b></div></div>`;
+  const subj = { confirm: `Randevunuz oluşturuldu – ${c.name}`, reminder: `Hatırlatma: ${relDay(ymd(new Date(a.start))) === 'Yarın' ? 'yarın' : fmtDay(a.start)} saat ${hm(a.start)} randevunuz`, review: `Ziyaretiniz için teşekkürler – ${c.name}` }[m.type];
+  let body = '';
+  if (m.type === 'confirm') body = `<h4>Randevunuz oluşturuldu</h4><p>Merhaba ${esc(first)}, randevunuz aşağıdaki bilgilerle kaydedildi.</p>${box}
+      <a class="em-btn alt">Takvimime ekle</a><p style="font-size:12.5px">Gelemeyecekseniz lütfen randevunuzu iptal edin; saatiniz başka bir hastaya açılsın.</p><a class="em-btn alt">Randevuyu iptal et</a>`;
+  if (m.type === 'reminder') body = `<h4>Randevunuzu hatırlatırız</h4><p>Merhaba ${esc(first)}, ${esc(docLabel(d))} ile randevunuz yaklaşıyor.</p>${box}
+      <a class="em-btn">Yol tarifi al</a><a class="em-btn alt">Randevuyu iptal et</a>`;
+  if (m.type === 'review') body = `<h4>Ziyaretiniz için teşekkür ederiz</h4><p>Merhaba ${esc(first)}, bugün kliniğimize geldiğiniz için teşekkür ederiz. Deneyiminizi Google'da paylaşmak isterseniz aşağıdaki bağlantıyı kullanabilirsiniz. Görüşleriniz diğer hastalara yol gösterir.</p>
+      <div class="stars" aria-hidden="true">★★★★★</div><a class="em-btn">Google'da değerlendir</a>`;
+  return `<div class="em"><div class="em-meta"><div>Kimden: <b>${esc(c.name)}</b> &lt;randevu@${esc(c.domain)}&gt;</div><div>Kime: ${esc(m.to)}</div><div>Konu: <b>${esc(subj)}</b></div></div>
+    <div class="em-card"><div class="em-top"><span class="mk">${TOOTH}</span>${esc(c.name)}</div><div class="em-body">${body}</div>
+    <div class="em-foot">${esc(c.address)} · ${esc(c.phone)}<br>Bu e-postayı randevu alırken e-posta adresinizi paylaştığınız için aldınız.</div></div></div>`;
+}
+
+/* ------------------------------------------------------------- drawer */
+function openDrawer(kind, id) {
+  P.drawer = { kind, id };
+  if (kind === 'new') P.na = { doc: S.doctors[0].id, date: P.tab === 'day' && P.day >= ymd(new Date()) ? P.day : ymd(new Date()), slot: '', name: '', phone: '', note: '', err: null };
+  renderDrawer();
+}
+function closeDrawer() { P.drawer = null; P.na = null; renderDrawer(); }
+function renderDrawer() {
+  const root = $('#drawer-root');
+  if (!P.drawer) { root.innerHTML = ''; return; }
+  let title = '', body = '';
+  if (P.drawer.kind === 'appt') {
+    const a = S.appts.find(x => x.id === P.drawer.id); const d = docById(a.doctorId);
+    title = 'Randevu detayı';
+    const can = ['pending','confirmed'].includes(a.status);
+    body = `<div><div style="font-size:20px;font-weight:800">${esc(a.name)}</div><div style="margin-top:4px">${pill(a.status)}</div></div>
+      <div class="sum">
+        <div><small>Hekim</small><b>${esc(docLabel(d))}</b></div>
+        <div><small>Tarih</small><b>${fmtDay(a.start)}</b></div>
+        <div><small>Saat</small><b class="tnum">${hm(a.start)} – ${hm(a.end)}</b></div>
+        <div><small>E-posta</small><b>${a.email ? esc(a.email) : '—'}</b></div>
+        <div><small>Not</small><b>${a.note ? esc(a.note) : '—'}</b></div>
+        <div><small>Kaynak</small><b>${a.source === 'web' ? 'Web sitesi' : 'Telefon (panel)'}</b></div>
+        <div><small>KVKK onayı</small><b>${a.kvkkAt ? fmtLong(a.kvkkAt) : 'Sözlü (telefon)'}</b></div>
+      </div>
+      <div><small style="color:var(--ink-3);font-weight:600">Telefon</small>
+        <div class="copy"><code>${fmtPhone(a.phone)}</code><button class="mini" data-act="copy" data-v="${fmtPhone(a.phone)}">Kopyala</button>
+        <a class="mini pri" href="https://wa.me/${a.phone.slice(1)}" target="_blank" rel="noopener">WhatsApp</a></div></div>
+      <div><small style="color:var(--ink-3);font-weight:600">Durumu değiştir</small>
+        <div class="btn-row" style="margin-top:6px">
+          ${a.status === 'pending' ? `<button class="mini pri" data-act="status" data-id="${a.id}" data-s="confirmed">Onayla</button>` : ''}
+          <button class="mini ok" data-act="status" data-id="${a.id}" data-s="attended">Geldi</button>
+          <button class="mini warn" data-act="status" data-id="${a.id}" data-s="no_show">Gelmedi</button>
+          ${can ? `<button class="mini bad" data-act="status" data-id="${a.id}" data-s="cancelled">İptal et</button>` : ''}
+          ${!can && a.status !== 'cancelled' ? `<button class="mini" data-act="status" data-id="${a.id}" data-s="confirmed">Geri al</button>` : ''}
+        </div></div>
+      ${a.status === 'attended' && a.email ? '<p class="note" style="margin:0">Google yorum isteği bu hastaya "Geldi" işaretinden 2 saat sonra gönderilir.</p>' : ''}`;
+  } else if (P.drawer.kind === 'mail') {
+    const m = S.mails.find(x => x.id === P.drawer.id);
+    title = MAILT[m.type][1];
+    body = mailHtml(m);
+  } else {
+    const n = P.na; const doc = docById(n.doc);
+    const slots = daySlots(doc, n.date, true).filter(s => s.state === 'free');
+    title = 'Telefonla gelen randevu';
+    body = `<p class="explain" style="margin:0">Hasta aradığında randevuyu buradan girin. Aynı saat web sitesinde de hemen kapanır.</p>
+      ${n.err ? `<div class="err" role="alert">${esc(n.err)}</div>` : ''}
+      <form id="na-form" novalidate>
+      <div class="field"><label for="na-doc">Hekim</label><select id="na-doc" data-na="doc">${S.doctors.map(d => `<option value="${d.id}" ${n.doc === d.id ? 'selected' : ''}>${esc(docLabel(d))}</option>`).join('')}</select></div>
+      <div class="field"><label for="na-date">Tarih</label><input id="na-date" type="date" data-na="date" value="${n.date}" min="${ymd(new Date())}"></div>
+      <div class="field"><label for="na-slot">Saat</label><select id="na-slot" data-na="slot">${slots.length ? `<option value="">Saat seçin</option>` + slots.map(s => `<option value="${s.s}" ${String(n.slot) === String(s.s) ? 'selected' : ''}>${hm(s.s)}</option>`).join('') : '<option value="">Bu gün boş saat yok</option>'}</select></div>
+      <div class="field"><label for="na-name">Hasta adı</label><input id="na-name" data-na="name" value="${esc(n.name)}"></div>
+      <div class="field"><label for="na-phone">Telefon</label><input id="na-phone" type="tel" data-na="phone" placeholder="05xx xxx xx xx" value="${esc(n.phone)}"></div>
+      <div class="field"><label for="na-note">Not <small>(isteğe bağlı)</small></label><input id="na-note" data-na="note" value="${esc(n.note)}"></div>
+      <button class="btn lg full" type="submit">Randevuyu kaydet</button></form>`;
+  }
+  root.innerHTML = `<div class="scrim" data-act="scrim"><aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="dr-head"><b>${esc(title)}</b><button class="icon-btn" data-act="closeDrawer" aria-label="Kapat">×</button></div>
+    <div class="dr-body">${body}</div></aside></div>`;
+}
+
+/* ------------------------------------------------------------ helpers */
+function toast(msg, actionLabel, fn) {
+  const t = document.createElement('div'); t.className = 'toast';
+  t.innerHTML = `<span>${esc(msg)}</span>`;
+  if (actionLabel) { const b = document.createElement('button'); b.textContent = actionLabel; b.onclick = () => { fn(); t.remove(); }; t.appendChild(b); }
+  $('#toasts').appendChild(t);
+  setTimeout(() => t.remove(), 5500);
+}
+function markPanelDot() { if (document.body.dataset.mode === 'site') $('#panel-dot').hidden = false; }
+function store(k, v) { try { localStorage.setItem(KEY + ':' + k, v); } catch (e) {} }
+function recall(k, d) { try { return localStorage.getItem(KEY + ':' + k) || d; } catch (e) { return d; } }
+function setMode(v) {
+  document.body.dataset.mode = v;
+  $('#mode-site').setAttribute('aria-pressed', v === 'site'); $('#mode-panel').setAttribute('aria-pressed', v === 'panel');
+  if (v === 'panel') { $('#panel-dot').hidden = true; renderPanel(); } else renderSite();
+  store('mode', v);
+}
+function setDevice(v) {
+  $('#frame').dataset.device = v;
+  $('#dev-desktop').setAttribute('aria-pressed', v === 'desktop'); $('#dev-mobile').setAttribute('aria-pressed', v === 'mobile');
+  store('device', v);
+}
+function showInPanel(a) { P.tab = 'day'; P.day = ymd(new Date(a.start)); P.flashId = a.id; setMode('panel'); window.scrollTo({ top: 0 }); }
+function applyBrand() {
+  document.documentElement.style.setProperty('--brand', S.clinic.color);
+  document.documentElement.style.setProperty('--s-display', (FONTS[S.clinic.font] || FONTS.modern).css);
+}
+function renderAll() { applyBrand(); renderSite(); renderSheet(); renderPanel(); renderDrawer(); }
+
+/* ------------------------------------------------------------- events */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const act = el.dataset.act;
+  if ((act === 'scrim' || act === 'sheetScrim') && e.target !== el) return;
+  switch (act) {
+    case 'mode': setMode(el.dataset.v); break;
+    case 'device': setDevice(el.dataset.v); break;
+    case 'reset': try { localStorage.removeItem(KEY); } catch (err) {} S = seed(); B = null; P.drawer = null; P.day = ymd(new Date()); P.week = ymd(mondayOf(new Date())); P.tab = 'day'; renderAll(); toast('Demo başlangıç hâline döndü.'); break;
+    case 'scrollTo': { const t = document.getElementById(el.dataset.t); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); break; }
+    // hasta
+    case 'book': openBooking(el.dataset.doc); break;
+    case 'quick': openBooking(el.dataset.doc); B.slot = Number(el.dataset.s); B.date = ymd(new Date(B.slot)); B.step = 4; renderSheet(); break;
+    case 'close': case 'sheetScrim': closeSheet(); renderSite(); break;
+    case 'back': B.err = null; B.step = Math.max(1, B.step - 1); renderSheet(); break;
+    case 'pickDoc': if (B.doctorId !== el.dataset.doc) { B.date = null; B.slot = null; } B.doctorId = el.dataset.doc; B.step = 2; renderSheet(); break;
+    case 'calMove': B.month = Math.max(0, Math.min(1, B.month + Number(el.dataset.d))); renderSheet(); break;
+    case 'pickDate': if (B.date !== el.dataset.date) B.slot = null; B.date = el.dataset.date; B.err = null; B.step = 3; renderSheet(); break;
+    case 'pickSlot': B.slot = Number(el.dataset.s); B.err = null; B.step = 4; renderSheet(); break;
+    case 'kvkk': if (!B) B = { mode: 'kvkk', from: null }; else { B.from = B.mode; B.mode = 'kvkk'; } renderSheet(); break;
+    case 'kvkkBack': if (B.from) { B.mode = B.from; renderSheet(); } else closeSheet(); break;
+    case 'openCancel': B = { mode: 'cancel', token: el.dataset.token, confirm: false }; renderSheet(); break;
+    case 'cancelAsk': B.confirm = true; renderSheet(); break;
+    case 'cancelNo': B.confirm = false; renderSheet(); break;
+    case 'doCancel': { const a = S.appts.find(x => x.token === B.token); setStatus(a.id, 'cancelled', 'patient'); renderSheet(); renderPanel(); break; }
+    // panel
+    case 'tab': P.tab = el.dataset.tab; renderPanel(); break;
+    case 'dayMove': P.day = ymd(addDays(at(P.day, '12:00'), Number(el.dataset.d))); renderPanel(); break;
+    case 'dayToday': P.day = ymd(new Date()); renderPanel(); break;
+    case 'weekMove': P.week = ymd(addDays(at(P.week, '12:00'), 7 * Number(el.dataset.d))); renderPanel(); break;
+    case 'weekToday': P.week = ymd(mondayOf(new Date())); renderPanel(); break;
+    case 'docFilter': P.docFilter = el.dataset.doc; renderPanel(); break;
+    case 'open': openDrawer('appt', el.dataset.id); break;
+    case 'mail': openDrawer('mail', el.dataset.id); break;
+    case 'newAppt': openDrawer('new'); break;
+    case 'closeDrawer': case 'scrim': closeDrawer(); break;
+    case 'status': {
+      const a = S.appts.find(x => x.id === el.dataset.id);
+      setStatus(a.id, el.dataset.s);
+      P.flashId = a.id;
+      renderPanel(); if (P.drawer) renderDrawer();
+      if (el.dataset.s === 'attended' && a.email) toast(`${shortName(a.name)}: Google yorum isteği 2 saat sonra gönderilecek.`);
+      else if (el.dataset.s === 'cancelled') toast('Randevu iptal edildi, saat web sitesinde yeniden açıldı.');
+      break;
+    }
+    case 'offDel': S.timeOff = S.timeOff.filter(o => o.id !== el.dataset.id); save(); renderPanel(); toast('İzin kaldırıldı, saatler yeniden açıldı.'); break;
+    case 'color': S.clinic.color = el.dataset.c; save(); applyBrand(); renderPanel(); break;
+    case 'font': S.clinic.font = el.dataset.f; save(); applyBrand(); renderPanel(); break;
+    case 'copy': {
+      const v = el.dataset.v;
+      const fallback = () => { const c = el.parentElement.querySelector('code'); const r = document.createRange(); r.selectNodeContents(c); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Numara seçildi, kopyalayabilirsiniz.'); };
+      try { navigator.clipboard.writeText(v).then(() => toast('Numara kopyalandı.'), fallback); } catch (err) { fallback(); }
+      break;
+    }
+  }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (B && B.mode === 'book' && t.closest('#bk-form')) { if (t.name === 'kvkk') B.f.kvkk = t.checked; else if (t.name) B.f[t.name] = t.value; }
+  if (t.dataset.set) {
+    const k = t.dataset.set;
+    S.clinic[k] = t.type === 'checkbox' ? t.checked : k === 'reminderHours' ? Number(t.value) : t.value;
+    save(); applyBrand();
+    if (k === 'name') { const pc = $('#p-clinic'); if (pc) pc.textContent = t.value; }
+    if (k === 'color') document.querySelectorAll('.sw').forEach(s => s.setAttribute('aria-pressed', s.dataset.c.toLowerCase() === t.value.toLowerCase()));
+  }
+  if (t.dataset.na && P.na) { P.na[t.dataset.na] = t.value; if (t.dataset.na === 'doc' || t.dataset.na === 'date') { P.na.slot = ''; renderDrawer(); } }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.change === 'slot') { docById(t.dataset.doc).slot = Number(t.value); save(); renderPanel(); toast('Randevu süresi güncellendi. Web sitesindeki saatler yeniden hesaplandı.'); }
+  if (t.dataset.change === 'sat') { const d = docById(t.dataset.doc); if (t.checked) d.hours[6] = [['10:00','14:00']]; else delete d.hours[6]; save(); renderPanel(); }
+  if (t.dataset.set === 'reminderHours' || t.dataset.set === 'autoConfirm') renderPanel();
+});
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  if (e.target.id === 'bk-form') {
+    const r = book({ doctorId: B.doctorId, start: B.slot, ...B.f, source: 'web' });
+    if (r.err) {
+      B.err = ERR[r.err];
+      if (r.err === 'SLOT_TAKEN' || r.err === 'SLOT_UNAVAILABLE') { B.slot = null; B.step = 3; }
+      renderSheet(); return;
+    }
+    B = { mode: 'done', apptId: r.a.id };
+    renderSheet(); renderPanel();
+    toast(`Yeni web randevusu: ${shortName(r.a.name)} · ${fmtLong(r.a.start)}`, 'Panelde göster', () => showInPanel(r.a));
+    markPanelDot();
+  }
+  if (e.target.id === 'off-form') {
+    const ds = $('#off-date').value; if (!ds) return;
+    const [a, b] = $('#off-span').value.split('-');
+    S.timeOff.push({ id: uid(), doctorId: $('#off-doc').value || null, start: at(ds, a).getTime(), end: at(ds, b).getTime(), reason: $('#off-reason').value.trim() });
+    save(); renderPanel(); toast('Kapatıldı. Bu saatler web sitesinde artık seçilemez.');
+  }
+  if (e.target.id === 'na-form') {
+    const n = P.na;
+    if (!n.slot) { n.err = 'Lütfen bir saat seçin.'; renderDrawer(); return; }
+    const r = book({ doctorId: n.doc, start: Number(n.slot), name: n.name, phone: n.phone, note: n.note, source: 'panel' });
+    if (r.err) { n.err = ERR[r.err]; renderDrawer(); return; }
+    closeDrawer(); P.tab = 'day'; P.day = ymd(new Date(r.a.start)); P.flashId = r.a.id; renderPanel();
+    toast(`Randevu kaydedildi: ${shortName(r.a.name)} · ${fmtLong(r.a.start)}`);
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (P.drawer) closeDrawer(); else if (B) closeSheet(); } });
+
+setInterval(() => {
+  const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+  if (document.body.dataset.mode === 'panel') renderPanel(); else if (!B) renderSite();
+}, 60000);
+
+load();
+applyBrand();
+setDevice(recall('device', window.matchMedia('(max-width:700px)').matches ? 'mobile' : 'desktop'));
+setMode(recall('mode', 'site'));
+renderSheet();
+window.demo = { get S() { return S; }, set S(v) { S = v; }, P, setMode, setDevice, openBooking, renderAll, renderSheet, get B() { return B; }, set B(v) { B = v; }, seed };
+})();
+</script>
+</body>
+</html>
