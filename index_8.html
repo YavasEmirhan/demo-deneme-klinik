@@ -1,0 +1,2384 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Örnek Diş Kliniği Demosu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@500;600;700;800&family=Figtree:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Nunito:wght@700;800&display=swap">
+<style>
+/* Tek, açık tema: nane zemin, beyaz yüzeyler, su yeşili marka, tereyağı sarısı vurgu */
+:root{
+  color-scheme:light;
+  --brand:#087F7B;
+  --bg:#E6F4F0; --mint:#E3F5F0; --mint-2:#CFEDE5; --surface:#FFFFFF; --surface-2:#F4FAF8;
+  --ink:#0F2E3A; --ink-2:#46626B; --ink-3:#7A9399; --line:#D3E6E1;
+  --butter:#FFE8A3; --butter-2:#FFF4D1; --butter-ink:#6A4C00;
+  --frame:#15323C;
+  --ok:#157A3E; --ok-soft:#DDF5E6; --warn:#A65A06; --warn-soft:#FFF0D6; --bad:#B42318; --bad-soft:#FDE4E1;
+  --info:#1F56C9; --info-soft:#E1EAFC; --muted-soft:#E9F0EE;
+  --brand-text:var(--brand);
+  --brand-soft:color-mix(in srgb, var(--brand) 13%, #fff);
+  --brand-softer:color-mix(in srgb, var(--brand) 6%, #fff);
+  --brand-deep:color-mix(in srgb, var(--brand) 78%, #0F2E3A);
+  --shadow:0 1px 2px rgba(15,46,58,.05), 0 12px 32px rgba(8,90,86,.10);
+  --shadow-lg:0 2px 4px rgba(15,46,58,.05), 0 24px 60px rgba(8,90,86,.16);
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display:"Gabarito", "Figtree", system-ui, sans-serif;
+  --s-display:var(--display);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{font-family:var(--body);color:var(--ink);font-size:14.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2.5px solid var(--brand);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- demo shell ---------- */
+.shell{max-width:1320px;margin:0 auto;padding-inline:16px;padding-block:14px 40px}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.bar-title{display:flex;flex-direction:column;gap:1px;margin-right:auto;min-width:0}
+.bar-title b{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:-.01em}
+.bar-title span{color:var(--ink-2);font-size:13px}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:7px 14px;border-radius:9px;font-weight:600;font-size:13.5px;color:var(--ink-2);position:relative;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--brand);color:#fff}
+.seg .dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--bad)}
+.ghost{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 12px;font-weight:600;font-size:13px;color:var(--ink-2)}
+.ghost:hover{color:var(--ink);border-color:var(--ink-3)}
+body[data-mode="panel"] #device-seg{display:none}
+body[data-mode="site"] #view-panel,body[data-mode="panel"] #view-site{display:none}
+
+/* site frame: desktop browser or phone */
+.site-frame{position:relative;background:var(--surface);box-shadow:var(--shadow-lg)}
+.site-frame[data-device="desktop"]{max-width:1240px;margin-inline:auto;border:1px solid var(--line);border-radius:16px;overflow:clip}
+.browser{display:flex;align-items:center;gap:12px;padding:9px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.browser i{width:11px;height:11px;border-radius:50%;background:var(--mint-2);display:inline-block}
+.browser .dots{display:flex;gap:6px}
+.browser .url{flex:1;max-width:420px;margin-inline:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 12px;font-size:12.5px;color:var(--ink-2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.browser .url b{color:var(--ink);font-weight:600}
+.site-frame[data-device="mobile"]{width:390px;max-width:100%;height:min(812px, calc(100vh - 110px));min-height:560px;margin-inline:auto;border:10px solid var(--frame);border-radius:44px;overflow:hidden}
+.site-frame[data-device="mobile"] .browser{display:none}
+.site-frame[data-device="mobile"] .site{height:100%;overflow-y:auto;overscroll-behavior:contain}
+.site{background:var(--surface);container-type:inline-size;container-name:site}
+.sheet-scrim{position:fixed;inset:0;z-index:50;background:rgba(15,46,58,.42);display:grid;place-items:center;padding:16px}
+.site-frame[data-device="mobile"] .sheet-scrim{position:absolute;padding:0;background:transparent}
+.sheet{width:min(460px,100%);height:min(740px,calc(100vh - 32px));background:var(--surface);border-radius:22px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);animation:up .22s ease-out}
+.site-frame[data-device="mobile"] .sheet{width:100%;height:100%;border-radius:0;box-shadow:none}
+@media (max-width:700px){
+  #device-seg{display:none!important}
+  .site-frame[data-device]{width:auto;height:auto;min-height:0;border:1px solid var(--line);border-radius:16px}
+  .site-frame[data-device] .browser{display:none}
+  .site-frame[data-device] .site{height:auto;overflow:visible}
+  .site-frame[data-device] .sheet-scrim{position:fixed;padding:0;background:transparent}
+  .site-frame[data-device] .sheet{width:100%;height:100%;border-radius:0}
+}
+@keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(21,122,62,.45)}70%{box-shadow:0 0 0 7px rgba(21,122,62,0)}100%{box-shadow:0 0 0 0 rgba(21,122,62,0)}}
+@media (prefers-reduced-motion:reduce){.sheet,.toast{animation:none}.flash{animation:none!important}.live i{animation:none!important}}
+
+/* ---------- patient site ---------- */
+.s-in{max-width:1080px;margin-inline:auto}
+.s-strip{background:var(--brand-deep);color:#E7F7F3;font-size:12.5px;padding:7px 18px}
+.s-strip .s-in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.s-strip b{color:#fff;font-weight:600}
+.s-strip .s-strip-phone{display:none}
+.s-head{position:sticky;top:0;z-index:5;background:color-mix(in srgb, var(--surface) 92%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 18px}
+.s-head .s-in{display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--s-display);font-weight:700;font-size:18px;letter-spacing:-.01em;min-width:0;margin-right:auto}
+.logo span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.logo .mark{flex:none;width:36px;height:36px;border-radius:12px 12px 16px 16px;background:var(--brand);display:grid;place-items:center;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)}
+.logo .mark svg{width:20px;height:20px;fill:#fff}
+.s-nav{display:none;gap:2px}
+.s-nav button{border:0;background:none;padding:8px 12px;border-radius:999px;font-weight:600;color:var(--ink-2)}
+.s-nav button:hover{color:var(--ink);background:var(--mint)}
+.btn{border:0;border-radius:999px;background:var(--brand);color:#fff;font-weight:700;padding:10px 18px;font-size:14px;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 6px 16px color-mix(in srgb, var(--brand) 28%, transparent)}
+.btn:hover{filter:brightness(1.07)}
+.btn.lg{padding:15px 24px;font-size:15.5px}
+.btn.full{width:100%}
+.btn.sec{background:var(--brand-soft);color:var(--brand-deep);box-shadow:none}
+.btn.line{background:var(--surface);color:var(--ink);border:1.5px solid var(--line);box-shadow:none}
+.btn.line svg{width:18px;height:18px;fill:#1FA855}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+
+/* hero: nane zemin, yumuşak su yeşili hale, altta diş sırası gibi dalgalı kenar */
+.s-hero{position:relative;padding:30px 18px 48px;background:
+  radial-gradient(70% 90% at 95% 0%, color-mix(in srgb, var(--brand) 16%, transparent), transparent 70%),
+  radial-gradient(50% 60% at 0% 100%, var(--butter-2), transparent 70%),
+  var(--mint)}
+.s-hero::after{content:"";position:absolute;left:0;right:0;bottom:-15px;height:16px;
+  background:radial-gradient(circle at 16px 0, var(--mint) 13px, transparent 14px) 0 0 / 32px 16px repeat-x;z-index:1}
+.s-hero-in{display:grid;gap:30px;align-items:start}
+.where{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--mint-2);border-radius:999px;padding:5px 12px 5px 8px;font-size:13px;font-weight:600;color:var(--brand-deep);margin:0 0 16px}
+.where svg{width:16px;height:16px;fill:var(--brand)}
+.s-hero h1{font-family:var(--s-display);font-size:34px;line-height:1.04;letter-spacing:-.025em;font-weight:800;margin-bottom:14px;color:var(--ink)}
+.s-hero p.sub{color:var(--ink-2);margin:0 0 22px;font-size:16px;line-height:1.55;max-width:46ch}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+.cta .btn{flex:1 1 auto}
+.facts{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;padding:0;list-style:none}
+.facts li{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-2)}
+.facts li b{color:var(--ink);font-weight:600}
+.facts svg{width:18px;height:18px;flex:none;stroke:var(--brand);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* randevu kartı: kliniklerin verdiği kâğıt kart gibi, koçanlı */
+.card-wrap{position:relative}
+.quick{position:relative;background:var(--surface);border-radius:22px;box-shadow:var(--shadow-lg);overflow:visible}
+.quick-top{background:var(--brand);color:#fff;border-radius:22px 22px 0 0;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.quick-top b{font-family:var(--s-display);font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px}
+.quick-top b svg{width:18px;height:18px;fill:#fff;opacity:.9}
+.live{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);border-radius:999px;padding:3px 10px 3px 8px;font-size:12px;font-weight:600}
+.live i{width:7px;height:7px;border-radius:50%;background:#7CF0B0;animation:pulse 2s infinite}
+.quick-body{padding:4px 18px 6px}
+.qrow{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.qrow:last-child{border-bottom:0}
+.qrow b{display:block;font-size:14.5px;font-weight:700}
+.qrow small{color:var(--ink-2);font-size:12.5px}
+.arch-sm{width:44px;height:50px;border-radius:22px 22px 10px 10px;display:grid;place-items:center;font-family:var(--s-display);font-weight:700;font-size:15px}
+.qslot{border:1.5px solid color-mix(in srgb, var(--brand) 45%, #fff);color:var(--brand-deep);background:var(--surface);border-radius:14px;padding:6px 12px;font-weight:800;font-size:15px;text-align:center;line-height:1.15;font-family:var(--s-display);min-width:74px}
+.qslot span{display:block;font-family:var(--body);font-weight:600;font-size:11.5px;color:var(--ink-2)}
+.qslot.today{background:var(--butter);border-color:#F2CF68;color:var(--ink)}
+.qslot.today span{color:var(--butter-ink)}
+.qslot:hover{border-color:var(--brand);transform:translateY(-1px)}
+.perf{position:relative;height:0;border-top:2px dashed var(--line);margin:4px 0 0}
+.perf::before,.perf::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--mint)}
+.perf::before{left:-11px}.perf::after{right:-11px}
+.stub{padding:12px 18px 16px;display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:12.5px;color:var(--ink-2)}
+.stub b{color:var(--ink);font-weight:700}
+
+.s-sec{position:relative;padding:36px 18px;background:var(--surface)}
+.s-sec.tint{background:var(--surface-2)}
+.s-sec h2{font-family:var(--s-display);font-size:26px;letter-spacing:-.02em;font-weight:800;margin-bottom:6px}
+.s-sec p.lead{color:var(--ink-2);margin:0 0 22px;font-size:15px;max-width:58ch}
+.svc{display:grid;gap:18px 28px}
+.svc > div{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:start}
+.svc .ic{width:48px;height:48px;border-radius:16px;background:var(--mint);display:grid;place-items:center}
+.svc .ic svg{width:24px;height:24px;stroke:var(--brand);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.svc b{display:block;font-size:16px;font-weight:700;margin:2px 0 3px}
+.svc span{color:var(--ink-2);font-size:14px}
+
+.how{display:grid;gap:14px;counter-reset:how;padding:0;margin:0;list-style:none}
+.how li{display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.how li::before{counter-increment:how;content:counter(how);width:52px;height:52px;border-radius:50%;background:var(--butter);color:var(--ink);display:grid;place-items:center;font-family:var(--s-display);font-weight:800;font-size:22px}
+.how b{display:block;font-size:15.5px}
+.how span{color:var(--ink-2);font-size:13.5px}
+
+.docs{display:grid;gap:14px}
+.doc{display:grid;grid-template-columns:76px 1fr;gap:16px;padding:16px;border:1px solid var(--line);border-radius:22px;background:var(--surface)}
+.portrait{width:76px;height:92px;border-radius:38px 38px 14px 14px;display:grid;place-items:center;font-family:var(--s-display);font-weight:800;font-size:24px;position:relative;overflow:hidden}
+.portrait::after{content:"";position:absolute;inset:auto 0 0 0;height:30%;background:linear-gradient(180deg,transparent,rgba(255,255,255,.35))}
+.doc h3{font-size:17px;font-weight:700;font-family:var(--s-display);letter-spacing:-.01em}
+.doc .spec{display:inline-block;margin-top:4px;background:var(--mint);color:var(--brand-deep);font-weight:600;font-size:12.5px;border-radius:999px;padding:2px 10px}
+.doc p{margin:8px 0 12px;color:var(--ink-2);font-size:13.5px}
+.av{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;color:#fff;flex:none}
+.av.sm{width:38px;height:38px;font-size:13px}
+
+.s-contact{display:grid;gap:18px}
+.hours{width:100%;border-collapse:collapse;font-size:14.5px;background:var(--surface);border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.hours td{padding:12px 16px;border-bottom:1px solid var(--line)}
+.hours tr:last-child td{border-bottom:0}
+.hours td:last-child{text-align:right;font-weight:700;white-space:nowrap}
+.hours tr.is-today td{background:var(--butter-2)}
+.hours tr.is-today td:first-child::after{content:"Bugün";margin-left:8px;font-size:11.5px;font-weight:700;background:var(--butter);color:var(--butter-ink);border-radius:999px;padding:1px 8px}
+.contact{display:grid;gap:0;background:var(--mint);border-radius:18px;padding:6px 16px}
+.contact div{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;padding:12px 0;border-bottom:1px solid var(--mint-2)}
+.contact div:last-child{border-bottom:0}
+.contact small{color:var(--ink-2);font-weight:600;font-size:13.5px}
+.contact a{color:var(--brand-deep);font-weight:700;text-decoration:none}
+.contact a:hover{text-decoration:underline}
+.s-foot{padding:24px 18px;background:var(--mint);color:var(--ink-2);font-size:12.5px;border-top:1px solid var(--mint-2)}
+.s-foot .s-in{display:grid;gap:6px}
+.link{background:none;border:0;padding:0;color:var(--brand-deep);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+
+@container site (min-width: 760px){
+  .s-strip{padding:7px 28px}
+  .s-strip .s-strip-phone{display:inline}
+  .s-head{padding:14px 28px}
+  .s-nav{display:flex}
+  .s-hero{padding:64px 28px 84px}
+  .s-hero-in{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:56px;align-items:center}
+  .s-hero h1{font-size:56px}
+  .s-hero p.sub{font-size:17.5px}
+  .cta .btn{flex:0 0 auto}
+  .quick{transform:rotate(-1.6deg)}
+  .card-wrap::before{content:"";position:absolute;inset:14px -10px -12px 18px;border-radius:24px;background:var(--butter);transform:rotate(2.2deg);z-index:0}
+  .card-wrap .quick{z-index:1}
+  .s-sec{padding:60px 28px}
+  .s-sec h2{font-size:34px}
+  .svc{grid-template-columns:repeat(3,1fr);gap:30px 36px}
+  .how{grid-template-columns:repeat(3,1fr);gap:18px}
+  .how li{grid-template-columns:1fr;justify-items:start;padding:22px}
+  .docs{grid-template-columns:repeat(3,1fr);gap:18px}
+  .doc{grid-template-columns:1fr;padding:18px}
+  .portrait{width:100%;height:170px;border-radius:999px 999px 18px 18px;font-size:44px}
+  .s-contact{grid-template-columns:1fr 1fr;gap:28px}
+  .s-foot{padding:28px}
+}
+
+/* ---------- nihai sürüm: ağrı haritası, kayan bant, ilk ziyaret ---------- */
+@keyframes popin{0%{opacity:0;scale:.3}100%{opacity:1;scale:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes throb{0%,100%{scale:1}50%{scale:1.035}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes cardin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.s-hero.pm-hero{padding-bottom:56px}
+.pm-grid{display:grid;gap:20px;grid-template-areas:"intro" "mouth" "ctrl"}
+.pm-intro{grid-area:intro}
+.pm-mouth{grid-area:mouth;display:flex;justify-content:center}
+.pm-ctrl{grid-area:ctrl;display:grid;gap:16px}
+.zones{display:flex;flex-wrap:wrap;gap:6px}
+.zone{border:0;border-radius:999px;padding:9px 14px;font-weight:700;font-size:13.5px;background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--mint-2);transition:background .2s,color .2s}
+.zone:hover{box-shadow:inset 0 0 0 1.5px var(--brand)}
+.zone[aria-pressed="true"]{background:var(--ink);color:#fff;box-shadow:none}
+.pm-label{font-weight:700;font-size:14px;color:var(--ink-2);margin:0 0 8px}
+.scale-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+.scale-h b{font-family:var(--s-display);font-weight:800;font-size:34px;line-height:1;transition:color .3s}
+.scale-h span{font-size:13.5px;font-weight:600;color:var(--ink-2)}
+.segs{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:3px}
+.lvl{height:34px;border:0;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:12px;padding:0;transition:transform .15s}
+.lvl:hover{transform:translateY(-2px)}
+.scale-ends{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-3);margin-top:6px}
+.pm-card{background:var(--surface);border-radius:20px;padding:16px 18px;box-shadow:var(--shadow);display:grid;gap:8px;animation:cardin .3s ease-out}
+.pm-card.urgent{box-shadow:0 0 0 2px #D14B61, var(--shadow)}
+.pm-card b.t{font-family:var(--s-display);font-size:18px;font-weight:700}
+.pm-card p{margin:0;font-size:14px;line-height:1.5;color:var(--ink-2)}
+.pm-card .row2{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:10px}
+.pm-card .row2 > div{margin-right:auto}
+.pm-card .row2 b{display:block;font-size:14.5px}
+.pm-card .row2 small{color:var(--ink-2);font-size:12.5px}
+.pm-note{font-size:12px;color:var(--ink-3)}
+.mouth{position:relative;width:320px;height:320px;animation:float 6s ease-in-out infinite}
+.mouth-in{position:absolute;left:0;top:0;width:520px;height:520px;transform-origin:0 0;transform:scale(.6154)}
+.mouth .glow{position:absolute;inset:0;border-radius:50%;transition:opacity .4s}
+.mouth .beat{position:absolute;inset:0;animation:throb var(--sp,2s) ease-in-out infinite}
+.mouth svg{position:absolute;inset:0}
+.mouth .tooth{position:absolute;padding:0;border:0;cursor:pointer;transition:background .3s, box-shadow .3s}
+.mouth .tooth.pop{opacity:0;animation:popin .4s cubic-bezier(.3,.8,.3,1.3) forwards}
+.mouth .hint{position:absolute;left:0;right:0;top:248px;text-align:center;font-family:var(--s-display);font-weight:600;font-size:15px;color:#B07A8C;pointer-events:none}
+
+.band{background:var(--brand-deep);color:#fff;overflow:hidden;padding:15px 0}
+.band .track{display:flex;width:max-content;gap:28px;align-items:center;animation:marquee 40s linear infinite}
+.band:hover .track{animation-play-state:paused}
+.band span{font-family:var(--s-display);font-weight:600;font-size:18px;white-space:nowrap}
+.band svg{width:16px;height:16px;fill:var(--butter);flex:none}
+
+.doc .next{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 0 12px}
+.doc .next small{color:var(--ink-2);font-size:12.5px;font-weight:600}
+
+.visit{display:grid;gap:28px}
+.visit h3{font-family:var(--s-display);font-weight:700;font-size:20px;margin:0 0 12px}
+.vsteps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.vstep{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;border-radius:16px;padding:10px 14px;border:1.5px solid transparent;transition:background .5s,border-color .5s,transform .5s}
+.vstep .n{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--brand-deep);font-family:var(--s-display);font-weight:800;font-size:17px;transition:background .5s,color .5s}
+.vstep b{display:block;font-size:15px}
+.vstep span{font-size:13.5px;color:var(--ink-2)}
+.vstep small{font-size:12.5px;color:var(--ink-3);white-space:nowrap}
+.vstep.on{background:var(--surface);border-color:var(--mint-2);transform:translateX(4px)}
+.vstep.on .n{background:var(--brand);color:#fff}
+.faq{display:grid;gap:8px}
+.faq details{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:0 16px}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 0;font-weight:700;font-size:15px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-size:20px;color:var(--brand);font-weight:600}
+.faq details[open] summary::after{content:"−"}
+.faq details p{margin:0 0 14px;font-size:14px;line-height:1.55;color:var(--ink-2)}
+@media (prefers-reduced-motion:reduce){.mouth,.mouth .beat,.band .track{animation:none}.mouth .tooth.pop{animation:none;opacity:1}.pm-card{animation:none}}
+
+@container site (min-width: 760px){
+  .pm-grid{grid-template-columns:minmax(0,1fr) 520px;grid-template-areas:"intro mouth" "ctrl mouth";column-gap:48px;row-gap:22px;align-items:start}
+  .pm-mouth{align-self:center}
+  .mouth{width:520px;height:520px}
+  .mouth-in{transform:none}
+  .visit{grid-template-columns:1fr 1fr;gap:40px}
+}
+
+@container site (min-width: 760px){ .pm-hero h1{font-size:48px} }
+
+.mouth.m3d{animation:none}
+.m3-canvas{display:block;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+.m3-canvas:active{cursor:grabbing}
+.m3-tip{position:absolute;left:0;right:0;bottom:4px;text-align:center;font-size:12.5px;font-weight:600;color:var(--ink-2);pointer-events:none}
+/* booking sheet */
+.sh-head{display:grid;grid-template-columns:36px 1fr 36px;align-items:center;padding:10px;background:var(--mint);border-bottom:1px solid var(--mint-2)}
+.sh-head b{text-align:center;font-size:15px;font-family:var(--s-display);font-weight:700}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:0;background:transparent;display:grid;place-items:center;color:var(--ink-2);font-size:20px;line-height:1}
+.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:12px 16px 4px;margin:0;list-style:none}
+.steps li{font-size:11px;font-weight:700;color:var(--ink-3);display:grid;gap:5px}
+.steps li::before{content:"";height:4px;border-radius:4px;background:var(--line)}
+.steps li.on{color:var(--ink)}
+.steps li.on::before,.steps li.past::before{background:var(--brand)}
+.sh-body{flex:1;overflow-y:auto;padding:14px 16px 20px}
+.sh-body h3{font-family:var(--s-display);font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:12px}
+.pick{display:grid;gap:8px}
+.opt{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;padding:12px;border:1.5px solid var(--line);border-radius:18px;background:var(--surface)}
+.opt:hover{border-color:var(--ink-3)}
+.opt.sel{border-color:var(--brand);background:var(--brand-softer)}
+.opt b{display:block;font-size:14.5px}
+.opt small{color:var(--ink-2);font-size:12.5px}
+.opt .chev{color:var(--ink-3);font-size:18px}
+.cal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .wd{font-size:11px;font-weight:700;color:var(--ink-3);text-align:center;padding-bottom:2px}
+.day{aspect-ratio:1/1.05;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);display:grid;place-content:center;text-align:center;padding:0}
+.day b{font-size:15px;line-height:1.1}
+.day i{font-style:normal;font-size:10px;color:var(--ok);font-weight:700}
+.day:disabled{background:var(--surface-2);border-color:transparent;color:var(--ink-3);cursor:default}
+.day:disabled i{color:var(--ink-3)}
+.day.today b{text-decoration:underline;text-underline-offset:3px}
+.day.sel{border-color:var(--brand);background:var(--brand);color:#fff}
+.day.sel i{color:#fff}
+.slot-g{margin-bottom:14px}
+.slot-g small{display:block;font-weight:700;color:var(--ink-3);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.slot{padding:10px 0;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);font-weight:700;font-variant-numeric:tabular-nums}
+.slot:hover:not(:disabled){border-color:var(--brand)}
+.slot.sel{background:var(--brand);border-color:var(--brand);color:#fff}
+.slot:disabled{background:var(--surface-2);border-color:transparent;color:var(--ink-3);text-decoration:line-through;cursor:default}
+.ctx{background:var(--butter-2);border-radius:14px;padding:10px 12px;margin-bottom:14px;font-size:13px;color:var(--ink-2)}
+.ctx b{color:var(--ink)}
+.field{display:grid;gap:5px;margin-bottom:12px}
+.field label{font-weight:700;font-size:13px}
+.field label small{font-weight:600;color:var(--ink-3)}
+.field input,.field select,.field textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);font-size:15px}
+.field textarea{resize:vertical;min-height:64px;font-size:14px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--brand)}
+.hint{color:var(--ink-3);font-size:12px}
+.check{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;font-size:12.5px;color:var(--ink-2);margin:4px 0 14px}
+.check input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--brand)}
+.err{background:var(--bad-soft);color:var(--bad);border-radius:10px;padding:10px 12px;font-weight:700;font-size:13px;margin-bottom:12px}
+.done{text-align:center;padding-top:14px}
+.done .ok-ic{width:62px;height:62px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;margin:0 auto 12px;font-size:30px;font-weight:800}
+.done h3{font-size:21px}
+.sum{margin:16px 0;text-align:left;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.sum div{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13.5px}
+.sum div:last-child{border-bottom:0}
+.sum small{color:var(--ink-3);font-weight:600}
+.sum b{text-align:right}
+.note{font-size:12.5px;color:var(--ink-2);background:var(--surface-2);border-radius:10px;padding:10px 12px;text-align:left;margin:0 0 14px}
+.stack{display:grid;gap:8px}
+.kvkk-text{font-size:13px;color:var(--ink-2);display:grid;gap:10px}
+.kvkk-text p{margin:0}
+
+/* ---------- panel ---------- */
+.panel{max-width:1240px;margin-inline:auto;background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.p-top{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.p-id{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
+.p-id .mark{flex:none;width:34px;height:34px;border-radius:10px;background:var(--brand);display:grid;place-items:center}
+.p-id .mark svg{width:19px;height:19px;fill:#fff}
+.p-id b{display:block;font-size:16px;font-weight:700;font-family:var(--display)}
+.p-id small{color:var(--ink-3);font-size:12px}
+.p-nav{display:flex;gap:2px;padding:6px 10px;border-bottom:1px solid var(--mint-2);overflow-x:auto;background:var(--mint)}
+.p-nav button{border:0;background:transparent;padding:8px 12px;border-radius:8px;font-weight:700;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.p-nav button:hover{color:var(--ink)}
+.p-nav button[aria-current="page"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.p-nav .cnt{display:inline-block;margin-left:5px;min-width:18px;padding:0 5px;border-radius:9px;background:var(--brand);color:#fff;font-size:11px;line-height:18px}
+.p-body{padding:18px 20px 24px}
+.p-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.p-head h2{font-family:var(--display);font-size:21px;font-weight:700;letter-spacing:-.01em;margin-right:auto}
+.nav-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-size:16px;color:var(--ink-2)}
+.nav-btn:hover:not(:disabled){color:var(--ink);border-color:var(--ink-3)}
+.nav-btn:disabled{opacity:.4;cursor:default}
+.stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.stat{display:flex;align-items:baseline;gap:6px;padding:7px 12px;border-radius:999px;background:var(--mint);font-size:12.5px;color:var(--ink-2);font-weight:600}
+.stat b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.list{display:grid;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer;background:var(--surface)}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--surface-2)}
+.row.now{box-shadow:inset 3px 0 0 var(--brand)}
+.row.is-cancelled .r-name,.row.is-cancelled .r-time b{text-decoration:line-through;color:var(--ink-3)}
+.r-time b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
+.r-time small{color:var(--ink-3);font-variant-numeric:tabular-nums}
+.r-name{font-weight:700;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.r-sub{color:var(--ink-2);font-size:12.5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ddot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+.src{font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+.r-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st-pending{background:var(--info-soft);color:var(--info)}
+.st-confirmed{background:var(--brand-soft);color:var(--brand-text)}
+.st-attended{background:var(--ok-soft);color:var(--ok)}
+.st-no_show{background:var(--warn-soft);color:var(--warn)}
+.st-cancelled{background:var(--muted-soft);color:var(--ink-3)}
+.mini{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:var(--ink-2);text-decoration:none}
+.mini:hover{color:var(--ink);border-color:var(--ink-3)}
+.mini.ok{color:var(--ok)} .mini.warn{color:var(--warn)} .mini.bad{color:var(--bad)} .mini.pri{color:var(--brand-text)}
+.empty{padding:28px 16px;text-align:center;color:var(--ink-3);border:1px dashed var(--line);border-radius:14px}
+.flash{animation:flash 2.6s ease-out}
+@keyframes flash{0%,30%{background:var(--brand-soft)}100%{background:var(--surface)}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:700;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px}
+.chip[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);background:var(--surface-2)}
+.week-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+.week{display:grid;grid-template-columns:repeat(6,minmax(128px,1fr));min-width:780px}
+.wcol{border-right:1px solid var(--line);min-height:320px}
+.wcol:last-child{border-right:0}
+.wcol.today .wh{background:var(--butter)}
+.wh{padding:9px 10px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;background:var(--surface-2)}
+.wh b{font-size:13px}
+.wh small{color:var(--ink-3);font-weight:700;font-size:11.5px}
+.wbody{padding:6px;display:grid;gap:5px;align-content:start}
+.wi{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 8px;font-size:12px;display:grid;gap:1px}
+.wi:hover{border-color:var(--ink-3)}
+.wi .t{font-weight:800;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:5px}
+.wi .n{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wi.off{background:var(--surface-2);border-style:dashed;color:var(--ink-3)}
+.wi.cx{opacity:.55}.wi.cx .n{text-decoration:line-through}
+.wi.st-attended-b .t::after{content:"✓";color:var(--ok);margin-left:auto}
+.wi.st-no_show-b .t::after{content:"!";color:var(--warn);margin-left:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px;align-content:start}
+.card-h{display:flex;gap:10px;align-items:center}
+.card-h b{display:block}
+.card-h small{color:var(--ink-2)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12.5px;margin:0}
+.kv dt{color:var(--ink-3);font-weight:600}
+.kv dd{margin:0;font-variant-numeric:tabular-nums}
+.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.inline select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.inline input[type=checkbox]{accent-color:var(--brand);width:16px;height:16px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;align-items:end;padding:14px;border:1px solid var(--line);border-radius:14px;margin-bottom:14px;background:var(--surface-2)}
+.form-grid .field{margin:0}
+.form-grid .field input,.form-grid .field select{font-size:14px;padding:9px 10px}
+.explain{color:var(--ink-2);font-size:13px;margin:-6px 0 14px;max-width:72ch}
+.mail{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 14px;border:0;border-bottom:1px solid var(--line);background:var(--surface);text-align:left;width:100%}
+.mail:hover{background:var(--surface-2)}
+.mail:last-child{border-bottom:0}
+.mail .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:15px;background:var(--surface-2)}
+.mail b{display:block;font-size:13.5px}
+.mail small{color:var(--ink-2);font-size:12.5px}
+.set{display:grid;gap:16px;max-width:600px}
+.set .field{margin:0}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sw{width:34px;height:34px;border-radius:10px;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}
+.sw[aria-pressed="true"]{border-color:var(--ink)}
+.swatches input[type=color]{width:44px;height:34px;padding:0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.fonts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fontopt{border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:10px;text-align:left}
+.fontopt b{display:block;font-size:19px;line-height:1.2}
+.fontopt small{color:var(--ink-3);font-weight:600}
+.fontopt[aria-pressed="true"]{border-color:var(--ink);background:var(--surface-2)}
+.addon{display:grid;gap:8px}
+.addon div{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;font-size:13px}
+.addon span{color:var(--ink-3);font-weight:600}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(5,15,18,.45);z-index:60;display:flex;justify-content:flex-end}
+.drawer{width:min(440px,100%);height:100%;background:var(--surface);display:flex;flex-direction:column;box-shadow:var(--shadow);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.dr-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+.dr-head b{font-size:15px}
+.dr-body{flex:1;overflow-y:auto;padding:16px;display:grid;gap:14px;align-content:start;grid-auto-rows:max-content}
+.dr-body .sum{margin:0}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row .mini{padding:8px 12px;font-size:13px}
+.copy{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.copy code{font-family:var(--body);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;user-select:all}
+
+/* e-mail preview (always light, like a real inbox) */
+.em{background:#F2F5F6;border-radius:14px;padding:14px;color:#10272E;font-family:var(--body)}
+.em-meta{font-size:12px;color:#51666C;margin-bottom:10px;display:grid;gap:2px}
+.em-meta b{color:#10272E}
+.em-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #DDE6E8}
+.em-top{background:var(--brand);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px}
+.em-top .mk{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.18);display:grid;place-items:center}
+.em-top .mk svg{width:16px;height:16px;fill:#fff}
+.em-body{padding:18px 16px;display:grid;gap:12px;font-size:14px;line-height:1.55}
+.em-body h4{margin:0;font-size:19px;letter-spacing:-.01em;line-height:1.25}
+.em-body p{margin:0;color:#3D5258}
+.em-box{background:#F4F8F9;border-radius:10px;padding:12px;display:grid;gap:4px;font-size:13.5px}
+.em-box b{color:#10272E}
+.em-btn{display:block;text-align:center;background:var(--brand);color:#fff;border-radius:10px;padding:12px;font-weight:800;text-decoration:none}
+.em-btn.alt{background:#fff;color:#10272E;border:1.5px solid #DDE6E8}
+.em-foot{padding:12px 16px;border-top:1px solid #E6EDEF;font-size:11.5px;color:#7A8F95}
+.stars{color:#F59E0B;font-size:22px;letter-spacing:4px;text-align:center}
+
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:80;display:grid;gap:8px;width:min(460px,calc(100% - 32px))}
+.toast{background:var(--ink);color:var(--surface);border-radius:12px;padding:11px 14px;font-weight:600;font-size:13.5px;display:flex;gap:10px;align-items:center;justify-content:space-between;box-shadow:var(--shadow);animation:up .2s ease-out}
+.toast button{border:0;background:transparent;color:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
+
+@media (max-width:560px){
+  .row{grid-template-columns:52px minmax(0,1fr)}
+  .r-right{grid-column:1 / -1;justify-content:flex-start}
+  .p-body{padding:14px}
+  .mail{grid-template-columns:auto minmax(0,1fr)}
+  .mail .pill{grid-column:2;justify-self:start}
+  .fonts{grid-template-columns:1fr}
+}
+/* ---------- panel: hastalar (mini CRM) ve aylık rapor ---------- */
+.p-search{flex:1 1 200px;max-width:300px;padding:8px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}
+.p-search:focus{outline:none;border-color:var(--brand)}
+.chip .cnum{font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.chip[aria-pressed="true"] .cnum{color:var(--ink)}
+.row.pt{grid-template-columns:64px minmax(0,1fr) auto}
+.row.pt .av{justify-self:start}
+.row.done{opacity:.62}
+.chev{color:var(--ink-3);font-size:20px;line-height:1}
+.tag{display:inline-flex;font-size:11px;font-weight:800;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.tg-new{background:var(--info-soft);color:var(--info)}
+.tg-reg{background:var(--ok-soft);color:var(--ok)}
+.tg-lap{background:var(--warn-soft);color:var(--warn)}
+.why{color:var(--ink);font-weight:600}
+.hist{display:grid;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.hist button{display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;border:0;border-bottom:1px solid var(--line);background:var(--surface);padding:8px 10px;font-size:12.5px}
+.hist button:last-child{border-bottom:0}
+.hist button:hover{background:var(--surface-2)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--surface);display:grid;gap:2px}
+.kpi small{color:var(--ink-2);font-weight:600;font-size:12.5px}
+.kpi b{font-family:var(--display);font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi span{font-size:12px;color:var(--ink-3)}
+.rgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.rbox{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--surface)}
+.rbox h3{font-size:14.5px;margin:0 0 12px;font-weight:700}
+.hbar{display:grid;grid-template-columns:92px minmax(0,1fr) 84px;gap:10px;align-items:center;font-size:13px;margin-bottom:10px}
+.hbar .tr{height:10px;background:var(--muted-soft);border-radius:999px;overflow:hidden}
+.hbar .tr i{display:block;height:100%;background:var(--brand);border-radius:0 4px 4px 0}
+.hbar b{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.trend{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:end;height:172px}
+.trend .c{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%}
+.trend .c i{width:100%;max-width:36px;background:var(--brand);border-radius:4px 4px 0 0}
+.trend .c.cur i{opacity:.45}
+.trend .c b{font-size:12px;font-variant-numeric:tabular-nums}
+.trend .c small{font-size:11.5px;color:var(--ink-2)}
+.ptable{width:100%;border-collapse:collapse;font-size:13px}
+.ptable th,.ptable td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+.ptable tr:last-child td{border-bottom:0}
+.ptable th:first-child,.ptable td:first-child{text-align:left}
+.ptable th{color:var(--ink-2);font-weight:600;font-size:12px}
+
+/* ---------- WhatsApp asistanı (site içinde) ---------- */
+.wa-dock{position:sticky;bottom:0;height:0;z-index:40}
+.site-frame[data-device="mobile"] .wa-dock{position:absolute;left:0;right:0;bottom:0}
+.wa-fab{position:absolute;right:20px;bottom:20px;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:#128C4A;color:#fff;font-weight:700;font-size:14px;padding:12px 18px;box-shadow:0 10px 26px rgba(8,60,40,.28)}
+.wa-fab svg{width:22px;height:22px;fill:#fff}
+.wa-fab:hover{filter:brightness(1.08)}
+.site-frame[data-device="mobile"] .wa-fab{right:14px;bottom:14px;padding:13px}
+.site-frame[data-device="mobile"] .wa-fab span{display:none}
+.wa-box{position:fixed;z-index:46;right:max(24px, calc((100vw - 1240px) / 2 + 24px));bottom:24px;width:min(384px, calc(100vw - 32px));height:min(620px, calc(100vh - 48px));background:#F3EFE8;border-radius:20px;border:1px solid var(--line);box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden;animation:up .22s ease-out}
+.site-frame[data-device="mobile"] .wa-box{position:absolute;inset:0;width:auto;height:auto;border-radius:0;border:0}
+@media (max-width:700px){
+  .site-frame[data-device] .wa-box{position:fixed;inset:0;width:auto;height:auto;border-radius:0;border:0}
+  /* Gerçek telefonda düğme ekrana sabitlenir (çerçeve kaydırma kabı olmadığı için yapışkan konum işe yaramaz) */
+  .site-frame[data-device] .wa-dock{position:static;height:0}
+  .site-frame[data-device] .wa-fab{position:fixed;z-index:45;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));padding:13px}
+  .site-frame[data-device] .wa-fab span{display:none}
+  .wa-form input{font-size:16px}  /* iPhone'da yazarken sayfanın yakınlaşmasını önler */
+}
+.wa-head{display:flex;align-items:center;gap:10px;padding:12px 12px 12px 14px;background:var(--brand-deep);color:#fff}
+.wa-head b{display:block;font-size:14.5px;line-height:1.25}
+.wa-head small{opacity:.88;font-size:12px}
+.wa-head .icon-btn{margin-left:auto;color:#fff}
+.wa-head .icon-btn:hover{background:rgba(255,255,255,.14);color:#fff}
+.wa-av{width:36px;height:36px;border-radius:50%;background:#fff;display:grid;place-items:center;flex:none}
+.wa-av svg{width:20px;height:20px;fill:var(--brand)}
+.wa-demo{font-size:11.5px;color:var(--butter-ink);background:var(--butter-2);padding:6px 12px;text-align:center}
+.wa-msgs{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:6px;overscroll-behavior:contain}
+.wa-m{max-width:86%;display:flex;flex-direction:column;padding:8px 10px 4px;border-radius:12px;font-size:13.5px;line-height:1.45;box-shadow:0 1px 1px rgba(15,46,58,.08);animation:up .18s ease-out}
+.wa-m.bot{align-self:flex-start;background:#fff;border-top-left-radius:4px}
+.wa-m.me{align-self:flex-end;background:#D7F5CC;border-top-right-radius:4px}
+.wa-m small{align-self:flex-end;font-size:10.5px;color:var(--ink-3)}
+.wa-m.typing span{display:inline-flex;gap:4px;padding:6px 2px 8px}
+.wa-m.typing i{width:6px;height:6px;border-radius:50%;background:var(--ink-3);animation:blink 1s infinite}
+.wa-m.typing i:nth-child(2){animation-delay:.2s}
+.wa-m.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.wa-opts{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;border-top:1px solid #E4DED3;background:#F8F6F2;max-height:42%;overflow-y:auto}
+.wa-opts button{border:1px solid var(--mint-2);background:#fff;color:var(--brand-deep);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;text-align:left}
+.wa-opts button:hover{border-color:var(--brand)}
+.wa-form{display:flex;gap:8px;padding:10px 12px;background:#F8F6F2;border-top:1px solid #E4DED3}
+.wa-form input{flex:1;min-width:0;border:1px solid var(--line);border-radius:999px;padding:10px 14px;font-size:14px;background:#fff}
+.wa-form input:focus{outline:none;border-color:var(--brand)}
+.wa-send{width:42px;height:42px;flex:none;border-radius:50%;border:0;background:var(--brand);display:grid;place-items:center}
+.wa-send svg{width:18px;height:18px;fill:#fff}
+@media (prefers-reduced-motion:reduce){.wa-box,.wa-m{animation:none}.wa-m.typing i{animation:none;opacity:.6}}
+.mail .wa-ic svg{width:18px;height:18px;fill:#128C4A;display:block}
+.wa-prev{background:#F3EFE8;border-radius:14px;padding:14px;display:flex;flex-direction:column}
+</style>
+
+</head>
+<body>
+<div class="shell">
+  <div class="bar">
+    <div class="bar-title">
+      <b>Diş kliniği web sitesi + online randevu · demo</b>
+      <span>Hayali "Örnek Diş Kliniği" verisiyle çalışır.</span>
+    </div>
+    <div class="seg" role="group" aria-label="Ekran">
+      <button id="mode-site" data-act="mode" data-v="site" aria-pressed="true">Web sitesi</button>
+      <button id="mode-panel" data-act="mode" data-v="panel" aria-pressed="false">Randevu paneli<span class="dot" id="panel-dot" hidden></span></button>
+    </div>
+    <div class="seg" id="device-seg" role="group" aria-label="Cihaz">
+      <button id="dev-desktop" data-act="device" data-v="desktop" aria-pressed="true">Masaüstü</button>
+      <button id="dev-mobile" data-act="device" data-v="mobile" aria-pressed="false">Mobil</button>
+    </div>
+    <button class="ghost" data-act="reset">Sıfırla</button>
+  </div>
+
+  <main id="view-site">
+    <div class="site-frame" id="frame" data-device="desktop">
+      <div class="browser" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="url" id="url"></span></div>
+      <div class="site" id="site"></div>
+      <div class="sheet-scrim" id="sheet-scrim" data-act="sheetScrim" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Online randevu"></div></div>
+      <div class="wa-dock"><button class="wa-fab" id="wa-fab" data-act="waOpen" aria-label="WhatsApp'tan yazın"></button></div>
+      <div class="wa-box" id="wa-box" role="dialog" aria-label="WhatsApp asistanı" hidden></div>
+    </div>
+  </main>
+  <main id="view-panel">
+    <div class="panel" id="panel"></div>
+  </main>
+</div>
+<div id="drawer-root"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const KEY = 'ornek-dis-demo-v4';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const at = (ds, t) => { const [y,m,d] = ds.split('-').map(Number); const [h,mi] = t.split(':').map(Number); return new Date(y, m-1, d, h, mi, 0, 0); };
+const hm = ms => { const d = new Date(ms); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const isoDow = d => ((d.getDay() + 6) % 7) + 1;
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const midnight = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+const mondayOf = d => addDays(midnight(d), -(isoDow(d) - 1));
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const MONTHS = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const DAYS = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+const DAYS_S = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+const fmtDay = ms => { const d = new Date(ms); return `${d.getDate()} ${MONTHS[d.getMonth()]} ${DAYS[isoDow(d)-1]}`; };
+const fmtLong = ms => `${fmtDay(ms)}, ${hm(ms)}`;
+const fmtPhone = p => p ? `0${p.slice(3,6)} ${p.slice(6,9)} ${p.slice(9,11)} ${p.slice(11,13)}` : '';
+const relDay = ds => { const n = new Date(); if (ds === ymd(n)) return 'Bugün'; if (ds === ymd(addDays(n, 1))) return 'Yarın'; if (ds === ymd(addDays(n, -1))) return 'Dün'; return ''; };
+const docLabel = d => `${d.title} ${d.name}`;
+const initials = n => n.split(' ').map(x => x[0]).join('').slice(0, 2).toLocaleUpperCase('tr');
+const shortName = n => { const p = n.trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[p.length-1][0]}.` : p[0]; };
+
+const STATUS = { pending: 'Onay bekliyor', confirmed: 'Onaylı', attended: 'Geldi', no_show: 'Gelmedi', cancelled: 'İptal' };
+const ERR = {
+  SLOT_TAKEN: 'Bu saat az önce doldu. Lütfen başka bir saat seçin.',
+  SLOT_UNAVAILABLE: 'Bu saat artık müsait değil. Lütfen başka bir saat seçin.',
+  KVKK_REQUIRED: 'Devam etmek için aydınlatma metnini onaylayın.',
+  INVALID_PHONE: 'Geçerli bir telefon numarası girin (05xx xxx xx xx).',
+  INVALID_EMAIL: 'E-posta adresini kontrol edin ya da boş bırakın.',
+  INVALID_NAME: 'Adınızı ve soyadınızı girin.',
+  TOO_MANY_BOOKINGS: 'Bu numarayla zaten 2 aktif randevunuz var. Değişiklik için kliniği arayın.',
+  OVERLAP: 'Bu hekimin o saatte başka randevusu var.',
+  PAST: 'Geçmiş bir saate randevu girilemez.'
+};
+const SERVICES = [
+  ['Muayene ve dolgu', 'Ağız içi muayene, gerekirse röntgen ve çürük tedavisi.', 'exam'],
+  ['Kanal tedavisi', 'Diş sinirine ulaşan iltihap veya çürüklerde uygulanan tedavi.', 'root'],
+  ['Ortodonti', 'Diş ve çene düzensizliklerinde tel veya şeffaf plak tedavisi.', 'braces'],
+  ['Diş eti tedavisi', 'Diş eti kanaması ve çekilmesinde periodontal tedavi.', 'gum'],
+  ['İmplant', 'Eksik dişlerin yerine çene kemiğine yerleştirilen yapay kök.', 'implant'],
+  ['Diş taşı temizliği', 'Diş taşlarının ve renklenmelerin profesyonel temizliği.', 'clean']
+];
+const TOOTH_D = 'M7.2 3C4.7 3 3 5 3 7.6c0 2 .8 3.4 1.4 5 .6 1.7.8 3.6 1.3 5.6.4 1.7 1 2.8 2 2.8 1.3 0 1.5-2 1.8-3.6.2-1.3.6-2.4 1.5-2.4h2c.9 0 1.3 1.1 1.5 2.4.3 1.6.5 3.6 1.8 3.6 1 0 1.6-1.1 2-2.8.5-2 .7-3.9 1.3-5.6.6-1.6 1.4-3 1.4-5C21 5 19.3 3 16.8 3c-1.8 0-3 1-4.8 1S9 3 7.2 3z';
+const svg = (inner, extra = '') => `<svg viewBox="0 0 24 24" aria-hidden="true"${extra}>${inner}</svg>`;
+const ICON = {
+  exam: svg('<circle cx="10.5" cy="10.5" r="6"/><path d="M20 20l-5.2-5.2"/><path d="M8 10.5h5M10.5 8v5"/>'),
+  root: svg(`<path d="${TOOTH_D}"/><path d="M10.4 9.5l.6 5M13.6 9.5l-.6 5"/>`),
+  braces: svg('<path d="M3 12h18"/><rect x="4" y="9" width="4" height="6" rx="1.2"/><rect x="10" y="9" width="4" height="6" rx="1.2"/><rect x="16" y="9" width="4" height="6" rx="1.2"/>'),
+  gum: svg('<path d="M3 8.5c3 3.2 6 3.2 9 0s6-3.2 9 0"/><path d="M6.5 12.5v6.5M12 12v7.5M17.5 12.5v6.5"/>'),
+  implant: svg('<path d="M8.5 3h7l-1 4h-5z"/><path d="M10 7v11.5l2 2.5 2-2.5V7"/><path d="M9.5 10.5h5M9.5 13.5h5M9.5 16.5h5"/>'),
+  clean: svg(`<path d="${TOOTH_D}"/><path d="M18.5 1.5v3M17 3h3M3 17.5v3M1.5 19h3"/>`),
+  pin: svg('<path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/>'),
+  clock: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+  cal: svg('<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'),
+  phone: svg('<path d="M5 3.5h3.2l1.6 4.2-2.2 1.5a11 11 0 0 0 7.2 7.2l1.5-2.2 4.2 1.6V19a1.5 1.5 0 0 1-1.6 1.5C10.6 20 4 13.4 3.5 5.1A1.5 1.5 0 0 1 5 3.5z"/>'),
+  wa: svg('<path d="M12 2.2A9.7 9.7 0 0 0 3.6 16.7L2.3 21.7l5.1-1.3A9.7 9.7 0 1 0 12 2.2zm0 17.7a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-3-.2-.3A8 8 0 1 1 12 19.9zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.7-1.2.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1 4.9 4.9 0 0 0 1 2.6 11.2 11.2 0 0 0 4.3 3.8c1.6.7 2.2.7 3 .6a2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/>')
+};
+const PALETTE = ['#087F7B', '#1F6FD1', '#6D4AD9', '#C2306B', '#B45309', '#2F7D32', '#28434D'];
+const FONTS = {
+  modern:  { label: 'Modern',  css: '"Gabarito", "Figtree", system-ui, sans-serif' },
+  klasik:  { label: 'Klasik',  css: '"Newsreader", Georgia, "Times New Roman", serif' },
+  yumusak: { label: 'Yumuşak', css: '"Nunito", "Manrope", system-ui, sans-serif' }
+};
+const TOOTH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 3C4.7 3 3 5 3 7.6c0 2 .8 3.4 1.4 5 .6 1.7.8 3.6 1.3 5.6.4 1.7 1 2.8 2 2.8 1.3 0 1.5-2 1.8-3.6.2-1.3.6-2.4 1.5-2.4h2c.9 0 1.3 1.1 1.5 2.4.3 1.6.5 3.6 1.8 3.6 1 0 1.6-1.1 2-2.8.5-2 .7-3.9 1.3-5.6.6-1.6 1.4-3 1.4-5C21 5 19.3 3 16.8 3c-1.8 0-3 1-4.8 1S9 3 7.2 3z"/></svg>';
+
+/* ------------------------------------------------------------------ state */
+let S;
+function seed() {
+  const WEEK = [['09:00','12:30'],['13:30','18:00']];
+  const mk = sat => { const h = {}; for (let i = 1; i <= 5; i++) h[i] = WEEK.map(r => [...r]); if (sat) h[6] = [['10:00','14:00']]; return h; };
+  const st = {
+    clinic: { name: 'Örnek Diş Kliniği', domain: 'ornekdis.com.tr', color: '#087F7B', font: 'modern', district: 'Kadıköy',
+      phone: '0212 000 00 00', wa: '905320000000', address: 'Örnek Mah. Demo Cad. No:1, Kadıköy / İstanbul',
+      reviewUrl: 'https://g.page/r/ornek-dis/review', reminderHours: 24, autoConfirm: true },
+    doctors: [
+      { id: 'd1', title: 'Uzm. Dt.', name: 'Ayşe Demir', spec: 'Ortodonti', color: '#9333EA', slot: 30,
+        bio: 'Diş teli ve şeffaf plak tedavileri alanında çalışmaktadır.', hours: mk(true) },
+      { id: 'd2', title: 'Dt.', name: 'Mehmet Kaya', spec: 'Genel Diş Hekimliği', color: '#EA580C', slot: 30,
+        bio: 'Muayene, dolgu ve kanal tedavisi yapmaktadır.', hours: mk(true) },
+      { id: 'd3', title: 'Dr. Dt.', name: 'Zeynep Arslan', spec: 'Periodontoloji', color: '#0891B2', slot: 45,
+        bio: 'Diş eti tedavileri ve implant cerrahisi alanında çalışmaktadır.', hours: mk(false) }
+    ],
+    timeOff: [], appts: [], mails: [], contacts: {}, handoffs: []
+  };
+  const FN = ['Selin','Burak','Merve','Hakan','Deniz','Can','Gizem','Oğuz','Ece','Kerem','Buse','Emre','Nazlı','Tolga','İrem','Serkan',
+    'Pelin','Mert','Aslı','Onur','Derya','Cem','Ezgi','Barış','Tuğba','Kaan','Melis','Volkan','Sibel','Arda','Yasemin','Umut'];
+  const LN = ['Aydın','Öztürk','Yıldız','Çelik','Koç','Erdem','Polat','Tan','Şahin','Aksoy','Kurt','Doğan','Güneş','Arı','Bulut','Uçar',
+    'Ateş','Kılıç','Yalçın','Karaca','Özdemir','Acar','Taş','Kaya','Esen','Uysal','Bozkurt','Ekinci','Sezer','Tekin','Duman','Önal'];
+  const tr = s => s.toLocaleLowerCase('tr').replace(/ı/g,'i').replace(/ş/g,'s').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ö/g,'o').replace(/ç/g,'c').replace(/\s+/g,'.');
+  let r = 11;
+  const rnd = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+  // Hasta havuzu: 0-159 düzenli/ara sıra gelenler, 160-179 uzun süredir gelmeyenler, 180-199 yeni hastalar
+  const pool = [];
+  for (let i = 0; i < 200; i++) {
+    const name = FN[i % 32] + ' ' + LN[(i * 7 + Math.floor(i / 32) * 3) % 32];
+    const phone = '+905' + String(300000000 + Math.floor(rnd() * 599999999)).slice(0, 9);
+    pool.push({ name, phone, email: rnd() < .6 ? tr(name) + '@example.com' : null });
+  }
+  let newIdx = 180;
+  const pick = off => {
+    if (off < -190 && rnd() < .3) return pool[160 + Math.floor(rnd() * 20)];
+    if (off >= -25 && rnd() < .22) { const p = pool[newIdx]; newIdx = newIdx >= 199 ? 180 + Math.floor(rnd() * 20) : newIdx + 1; return p; }
+    return pool[Math.floor(Math.pow(rnd(), 1.15) * 160)];
+  };
+  const now = Date.now();
+  for (let off = -270; off <= 6; off++) {
+    const ds = ymd(addDays(new Date(), off));
+    const recent = off >= -1;
+    for (const doc of st.doctors) {
+      for (const sl of rawSlots(doc, ds)) {
+        if (rnd() > (recent ? (off <= 1 ? 0.4 : 0.24) : 0.11)) continue;
+        const who = pick(off);
+        if (st.appts.some(a => a.phone === who.phone && ymd(new Date(a.start)) === ds)) continue;
+        const past = sl.e <= now;
+        const x = rnd();
+        const status = past ? (x < .86 ? 'attended' : x < .96 ? 'no_show' : 'cancelled') : (x < .06 ? 'cancelled' : 'confirmed');
+        const y = rnd();
+        const source = y < .52 ? 'web' : y < .8 ? 'panel' : 'whatsapp';
+        const email = source === 'whatsapp' ? null : who.email;
+        const created = Math.min(sl.s - 86400000 * (1 + Math.floor(rnd() * 5)), now - 3600000);
+        const a = { id: uid(), token: uid(), doctorId: doc.id, start: sl.s, end: sl.e, name: who.name, phone: who.phone, email, note: null,
+          status, source, createdAt: created, kvkkAt: source !== 'panel' ? created : null, attendedAt: status === 'attended' ? sl.e : null };
+        st.appts.push(a);
+        if (off < -14) continue;
+        const ch = source === 'whatsapp' ? 'wa' : email ? 'mail' : null;
+        if (!ch) continue;
+        const to = ch === 'wa' ? who.phone : email;
+        st.mails.push({ id: uid(), type: 'confirm', channel: ch, apptId: a.id, to, at: created });
+        if (status !== 'cancelled') st.mails.push({ id: uid(), type: 'reminder', channel: ch, apptId: a.id, to, at: Math.max(created, sl.s - 24 * 3600000) });
+        if (status === 'attended') st.mails.push({ id: uid(), type: 'review', channel: ch, apptId: a.id, to, at: sl.e + 2 * 3600000 });
+      }
+    }
+  }
+  st.contacts = {};
+  st.handoffs = [{ id: uid(), phone: pool[3].phone, name: pool[3].name, at: now - 3 * 3600000, done: false }];
+  const nextWed = addDays(mondayOf(new Date()), 9);
+  st.timeOff.push({ id: uid(), doctorId: 'd3', start: at(ymd(nextWed), '13:00').getTime(), end: at(ymd(nextWed), '18:00').getTime(), reason: 'Kongre' });
+  return st;
+}
+function rawSlots(doc, ds) {
+  const out = [];
+  for (const [a, b] of (doc.hours[isoDow(at(ds, '00:00'))] || [])) {
+    let t = at(ds, a).getTime(); const end = at(ds, b).getTime(); const step = doc.slot * 60000;
+    while (t + step <= end) { out.push({ s: t, e: t + step }); t += step; }
+  }
+  return out;
+}
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) S = JSON.parse(raw); } catch (e) { S = null; }
+  if (!S || !S.clinic || !Array.isArray(S.appts)) S = seed();
+  S.contacts = S.contacts || {}; S.handoffs = S.handoffs || [];
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const docById = id => S.doctors.find(d => d.id === id);
+
+/* ----------------------------------------------------- booking rules
+   Veritabanındaki get_available_slots / book_appointment ile aynı kurallar */
+function daySlots(doc, ds, forPanel = false) {
+  const now = Date.now(), lead = forPanel ? now : now + 60 * 60000, horizon = now + 60 * 86400000;
+  return rawSlots(doc, ds).map(({ s, e }) => {
+    let state = 'free';
+    if (s < lead || s > horizon) state = 'past';
+    else if (S.timeOff.some(o => (!o.doctorId || o.doctorId === doc.id) && o.start < e && o.end > s)) state = 'off';
+    else if (S.appts.some(x => x.doctorId === doc.id && x.status !== 'cancelled' && x.start < e && x.end > s)) state = 'taken';
+    return { s, e, state };
+  });
+}
+function nextFree(doc) {
+  for (let i = 0; i < 21; i++) { const f = daySlots(doc, ymd(addDays(new Date(), i))).find(x => x.state === 'free'); if (f) return f.s; }
+  return null;
+}
+function normPhone(p) {
+  let d = String(p || '').replace(/\D/g, '');
+  if (/^90\d{10}$/.test(d)) d = d.slice(2); else if (/^0\d{10}$/.test(d)) d = d.slice(1);
+  return /^[2-5]\d{9}$/.test(d) ? '+90' + d : null;
+}
+function book({ doctorId, start, name, phone, email, note, kvkk, source }) {
+  const patient = source !== 'panel';
+  if (patient && !kvkk) return { err: 'KVKK_REQUIRED' };
+  name = String(name || '').trim().replace(/\s+/g, ' ');
+  if (name.length < 2 || name.length > 80) return { err: 'INVALID_NAME' };
+  const p = normPhone(phone); if (!p) return { err: 'INVALID_PHONE' };
+  email = String(email || '').trim().toLowerCase() || null;
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { err: 'INVALID_EMAIL' };
+  const doc = docById(doctorId);
+  const slot = daySlots(doc, ymd(new Date(start)), source === 'panel').find(x => x.s === start);
+  if (!slot) return { err: 'SLOT_UNAVAILABLE' };
+  if (slot.state === 'taken') return { err: patient ? 'SLOT_TAKEN' : 'OVERLAP' };
+  if (slot.state === 'past') return { err: patient ? 'SLOT_UNAVAILABLE' : 'PAST' };
+  if (slot.state !== 'free') return { err: 'SLOT_UNAVAILABLE' };
+  if (patient && S.appts.filter(a => a.phone === p && ['pending','confirmed'].includes(a.status) && a.start > Date.now()).length >= 2)
+    return { err: 'TOO_MANY_BOOKINGS' };
+  const now = Date.now();
+  const a = { id: uid(), token: uid(), doctorId, start, end: slot.e, name, phone: p, email, note: String(note || '').trim() || null,
+    status: patient && !S.clinic.autoConfirm ? 'pending' : 'confirmed', source, createdAt: now,
+    kvkkAt: patient ? now : null, attendedAt: null };
+  S.appts.push(a);
+  const ch = source === 'whatsapp' ? 'wa' : email ? 'mail' : null;
+  if (ch) {
+    const to = ch === 'wa' ? p : email;
+    S.mails.push({ id: uid(), type: 'confirm', channel: ch, apptId: a.id, to, at: now });
+    S.mails.push({ id: uid(), type: 'reminder', channel: ch, apptId: a.id, to, at: Math.max(now, start - S.clinic.reminderHours * 3600000) });
+  }
+  save();
+  return { ok: true, a };
+}
+function setStatus(id, status, by = 'panel') {
+  const a = S.appts.find(x => x.id === id); if (!a) return;
+  a.status = status;
+  if (status === 'attended') {
+    a.attendedAt = Date.now();
+    const ch = a.source === 'whatsapp' ? 'wa' : a.email ? 'mail' : null;
+    if (ch && S.clinic.reviewUrl && !S.mails.some(m => m.apptId === a.id && m.type === 'review'))
+      S.mails.push({ id: uid(), type: 'review', channel: ch, apptId: a.id, to: ch === 'wa' ? a.phone : a.email, at: Date.now() + 2 * 3600000 });
+  }
+  if (status === 'cancelled') S.mails.forEach(m => { if (m.apptId === a.id && m.at > Date.now()) m.cancelled = true; });
+  save();
+  if (by === 'patient') {
+    toast(`${shortName(a.name)} randevusunu iptal etti · ${fmtLong(a.start)}`, 'Panelde göster', () => showInPanel(a));
+    markPanelDot();
+  }
+}
+
+/* ------------------------------------------------------- patient site */
+/* ---- ağrı haritası: hasta bölgeyi ve şiddeti seçer, uygun hekim + gerçek boş saat gelir ----
+   Not: seçimler yalnızca yönlendirme içindir; randevu kaydına sağlık bilgisi yazılmaz. */
+const PM = { zone: 'su', lv: 5, first: true };
+const PM_ZONES = [
+  { k: 'su', label: 'Sağ üst', doc: 'd2' }, { k: 'so', label: 'Sol üst', doc: 'd2' }, { k: 'on', label: 'Ön dişler', doc: 'd2' },
+  { k: 'sa', label: 'Sağ alt', doc: 'd2' }, { k: 'sl', label: 'Sol alt', doc: 'd2' },
+  { k: 'eti', label: 'Diş eti', doc: 'd3' }, { k: 'dizi', label: 'Çapraşıklık', doc: 'd1' }
+];
+const HEAT = ['#FFE8A3', '#FFE0A0', '#FFD49A', '#FFC593', '#FFB58B', '#FFA382', '#FF9079', '#F87D72', '#EE6B6B', '#E15A66', '#D14B61'];
+function pmTeeth() {
+  const size = [[44, 41], [42, 39], [36, 38], [34, 38], [30, 44], [28, 40], [32, 41]];
+  const out = [];
+  [true, false].forEach(upper => {
+    const cx = 260, cy = upper ? 244 : 276, rx = upper ? 200 : 184, ry = upper ? 182 : 166;
+    for (let i = 0; i < 14; i++) {
+      const a = upper ? (194 + i * (152 / 13)) : (166 - i * (152 / 13));
+      const rad = a * Math.PI / 180, x = cx + rx * Math.cos(rad), y = cy + ry * Math.sin(rad);
+      const k = Math.min(i, 13 - i), [w, h] = size[k], front = k >= 5;
+      const left = upper ? i < 7 : i >= 7;
+      const z = front ? 'on' : upper ? (left ? 'su' : 'so') : (left ? 'sa' : 'sl');
+      out.push({ x, y, w, h, a, z, front, delay: (upper ? 0 : 14) * 28 + i * 28 });
+    }
+  });
+  return out;
+}
+/* ---- 3D ağız modeli (three.js). Sürükleyerek döndürülür, dişe/diş etine dokunulunca bölge seçilir.
+   Dişler gerçek oranlarla (mm) ve tür başına anatomik formla üretilir; three.js yüklenemezse 2D harita kullanılır. ---- */
+const M3 = { ok: false, tried: false };
+function m3Init() {
+  if (M3.tried) return M3.ok;
+  M3.tried = true;
+  const THREE = window.THREE;
+  if (!THREE) return false;
+  try {
+    const S = 1 / 16;                                   // 1 birim = 16 mm
+    const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+    const mix = (a, b, t) => a + (b - a) * t;
+    const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+    const lin = c => Math.pow(c, 2.2);
+    const linCol = hex => new THREE.Color(hex).convertSRGBToLinear();
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.95;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    const canvas = renderer.domElement;
+    canvas.className = 'm3-canvas';
+    canvas.setAttribute('role', 'img');
+    canvas.setAttribute('aria-label', 'Döndürülebilir 3D ağız modeli. Bölge seçmek için dişlere dokunun ya da aşağıdaki düğmeleri kullanın.');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 60);
+    camera.position.set(0, 0.7, 9.4);
+    camera.lookAt(0, 0.02, 0);
+
+    // Stüdyo ortam ışığı: yumuşak kutu ışıklardan yansımalar (mine ve ıslak diş eti parlaklığı için)
+    try {
+      const es = new THREE.Scene();
+      const sg = new THREE.SphereGeometry(10, 32, 16), sp = sg.attributes.position, sc = [];
+      for (let i = 0; i < sp.count; i++) { const y = sp.getY(i) / 10, c = y > 0 ? mix(0.5, 0.95, y) : mix(0.5, 0.18, -y); sc.push(c, c * 0.96, c * 0.93); }
+      sg.setAttribute('color', new THREE.Float32BufferAttribute(sc, 3));
+      es.add(new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide })));
+      [[7, 3, [0, 6, 5], 6], [3, 6, [-7, 1, 3], 2.6], [3, 5, [7, 2, -1], 2], [5, 2, [0, -5, 4], 0.8]].forEach(([w, h, p, k]) => {
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(k, k * 0.98, k * 0.95), side: THREE.DoubleSide }));
+        m.position.set(p[0], p[1], p[2]); m.lookAt(0, 0, 0); es.add(m);
+      });
+      const pm = new THREE.PMREMGenerator(renderer);
+      scene.environment = pm.fromScene(es, 0.03).texture;
+      pm.dispose();
+    } catch (e) { /* ortam haritası yoksa yalnız ışıklar */ }
+
+    scene.add(new THREE.HemisphereLight(0xfffaf5, 0x8a5a5e, 0.35));
+    const key = new THREE.DirectionalLight(0xfff6ee, 1.0);
+    key.position.set(2.4, 4.6, 6.2); key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024);
+    Object.assign(key.shadow.camera, { left: -3.2, right: 3.2, top: 3.2, bottom: -3.2, near: 2, far: 16 });
+    key.shadow.bias = -0.0015; key.shadow.normalBias = 0.04; key.shadow.radius = 3;
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0xffeef0, 0.3); fill.position.set(-3, -1.5, 5); scene.add(fill);
+
+    // Normal dikişlerini kapat (küre dikişi ve kutuplar)
+    const smooth = g => {
+      g.computeVertexNormals();
+      const P = g.attributes.position, N = g.attributes.normal, map = new Map();
+      for (let i = 0; i < P.count; i++) {
+        const k = Math.round(P.getX(i) * 1e4) + ',' + Math.round(P.getY(i) * 1e4) + ',' + Math.round(P.getZ(i) * 1e4);
+        let a = map.get(k); if (!a) map.set(k, a = [0, 0, 0, []]);
+        a[0] += N.getX(i); a[1] += N.getY(i); a[2] += N.getZ(i); a[3].push(i);
+      }
+      map.forEach(a => { if (a[3].length < 2) return; const l = Math.hypot(a[0], a[1], a[2]) || 1; a[3].forEach(i => N.setXYZ(i, a[0] / l, a[1] / l, a[2] / l)); });
+      return g;
+    };
+
+    // Diş formu: yuvarlatılmış kutudan; kole daralması, kesici kenar, tüberküller ve fissürler
+    function toothGeo(type, w, h, d, shade, cerv = 0.7) {
+      const g = new THREE.SphereGeometry(1, 36, 30);
+      const P = g.attributes.position, n = P.count, cols = new Float32Array(n * 3);
+      const r = h * 0.5, tc = r / (h + r);
+      for (let i = 0; i < n; i++) {
+        let x = P.getX(i), y = P.getY(i), z = P.getZ(i);
+        const kk = Math.pow(Math.pow(Math.abs(x), 3) + Math.pow(Math.abs(y), 3) + Math.pow(Math.abs(z), 3), 1 / 3);
+        x /= kk; y /= kk; z /= kk;
+        const t = (y + 1) / 2, u = (t - tc) / (1 - tc);
+        const root = clamp(-u * (1 - tc) / tc, 0, 1);
+        const top = sstep(0.8, 1, t);
+        let fx, fz, Y = t * (h + r) - r, groove = 0, edge = 0;
+        if (type === 'inc') {
+          fx = cerv + (1 - cerv) * sstep(-0.1, 0.6, u);
+          fz = mix(1, 0.26, sstep(0.05, 1, u));
+          if (z < 0) fz *= 1 - 0.32 * Math.sin(Math.PI * clamp(u, 0, 1)) * (1 - x * x);   // dil tarafı kürek çukuru
+          Y += top * h * (0.012 * Math.cos(x * 3 * Math.PI) - 0.07 * Math.pow(x, 4));      // hafif mamelonlar, yuvarlak köşeler
+          edge = sstep(0.82, 1, u);
+        } else if (type === 'can') {
+          fx = (0.74 + 0.26 * sstep(-0.1, 0.5, u)) * (1 - 0.22 * sstep(0.7, 1, u));
+          fz = mix(1, 0.4, sstep(0.1, 1, u));
+          if (z < 0) fz *= 1 - 0.18 * Math.sin(Math.PI * clamp(u, 0, 1));
+          Y += sstep(0.62, 1, t) * h * 0.17 * (1 - Math.pow(Math.abs(x), 1.15)) - top * h * 0.04;  // sivri tüberkül
+          edge = sstep(0.88, 1, u) * 0.6;
+        } else {
+          const mol = type === 'mol';
+          fx = (0.7 + 0.3 * sstep(-0.2, 0.42, u)) * (1 - 0.08 * sstep(0.6, 1, u));
+          fz = (0.76 + 0.24 * sstep(-0.2, 0.4, u)) * (1 - 0.13 * sstep(0.55, 1, u));
+          const g2 = (cx, cz, s2) => Math.exp(-((x - cx) * (x - cx) + (z - cz) * (z - cz)) / s2);
+          let field;
+          if (mol) {
+            field = g2(-0.42, 0.44, 0.13) + g2(0.42, 0.44, 0.13) + 0.85 * g2(-0.42, -0.44, 0.13) + 0.9 * g2(0.42, -0.44, 0.13);
+            groove = Math.max(Math.exp(-z * z / 0.012) * (1 - Math.pow(x, 6)), Math.exp(-x * x / 0.01) * (1 - Math.pow(z, 6)));
+          } else {
+            field = 1.05 * g2(0, 0.44, 0.16) * (1 - 0.4 * x * x) + 0.7 * g2(0, -0.44, 0.16) * (1 - 0.4 * x * x);
+            groove = Math.exp(-z * z / 0.014) * (1 - Math.pow(x, 6));
+          }
+          Y += top * h * ((mol ? 0.15 : 0.19) * field - 0.08 * groove);
+          groove *= top;
+        }
+        const rf = 1 - 0.38 * root;
+        fx *= rf; fz *= rf;
+        let X = x * (w / 2) * fx, Z = z * (d / 2) * fz;
+        if (type === 'inc' || type === 'can') Z -= 0.12 * d * x * x;                       // dudak yüzeyi kavise uyar
+        P.setXYZ(i, X, Y, Z);
+        // Renk: kolede sıcak fildişi, gövdede açık mine, kesici kenarda hafif mavimsi saydamlık, fissürlerde koyuluk
+        let c;
+        if (u < 0) c = [0.86, 0.77, 0.62];
+        else {
+          const k = sstep(0, 0.6, u);
+          c = [mix(0.88, 0.955, k), mix(0.8, 0.935, k), mix(0.66, 0.87, k)];
+        }
+        if (edge > 0) { c = [mix(c[0], 0.84, edge * 0.7), mix(c[1], 0.88, edge * 0.7), mix(c[2], 0.93, edge * 0.7)]; }
+        if (groove > 0) { const q = clamp(groove, 0, 1) * 0.55; c = [mix(c[0], 0.58, q), mix(c[1], 0.49, q), mix(c[2], 0.38, q)]; }
+        cols[i * 3] = lin(c[0]) * shade; cols[i * 3 + 1] = lin(c[1]) * shade; cols[i * 3 + 2] = lin(c[2]) * shade;
+      }
+      g.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+      return smooth(g);
+    }
+
+    // Çene kavsi (katener benzeri): önde yuvarlak, azılara doğru düzleşerek geriye uzanır. Yay uzunluğuyla örneklenir.
+    function makeArch(sx, z0) {
+      const pts = [[0, z0]], cum = [0];
+      for (let x = 0.05; x <= 34; x += 0.05) {
+        const X = x * sx, Z = z0 - (0.0231 * x * x + 3.99e-5 * x * x * x * x), p = pts[pts.length - 1];
+        cum.push(cum[cum.length - 1] + Math.hypot(X - p[0], Z - p[1])); pts.push([X, Z]);
+      }
+      return s => {
+        let lo = 0, hi = cum.length - 1;
+        while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cum[m] < s) lo = m; else hi = m; }
+        const f = clamp((s - cum[lo]) / ((cum[hi] - cum[lo]) || 1), 0, 1), a = pts[lo], b = pts[hi];
+        const tx = b[0] - a[0], tz = b[1] - a[1], l = Math.hypot(tx, tz) || 1;
+        return { x: mix(a[0], b[0], f), z: mix(a[1], b[1], f), tx: tx / l, tz: tz / l };
+      };
+    }
+
+    // Gerçek diş ölçüleri (mm): [genişlik, kron boyu, kalınlık, tür]
+    const TEETH = {
+      upper: [[8.5, 10.2, 7, 'inc'], [6.6, 8.8, 6.2, 'inc'], [7.6, 10, 8, 'can'], [7, 8.3, 9, 'pre'], [6.6, 7.8, 9, 'pre'], [10.2, 7.3, 11, 'mol'], [9.2, 6.8, 10.8, 'mol']],
+      lower: [[5.2, 8.6, 6, 'inc'], [5.8, 9, 6.2, 'inc'], [7, 10.4, 7.6, 'can'], [7, 8, 7.8, 'pre'], [7.1, 7.8, 8.1, 'pre'], [11, 7.4, 10.4, 'mol'], [10.4, 7, 10, 'mol']]
+    };
+    // Diş eti noktalanması ve dil papilleri için küçük kabartma dokusu
+    const bumpTex = (() => {
+      const c = document.createElement('canvas'); c.width = c.height = 256;
+      const x = c.getContext('2d'); x.fillStyle = '#808080'; x.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 4200; i++) { const v = (100 + Math.random() * 140) | 0; x.fillStyle = `rgb(${v},${v},${v})`; x.beginPath(); x.arc(Math.random() * 256, Math.random() * 256, 0.8 + Math.random() * 1.8, 0, 7); x.fill(); }
+      const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+    })();
+    const tongueBump = bumpTex.clone(); tongueBump.needsUpdate = true; tongueBump.repeat.set(5, 7);
+    const gumMat = new THREE.MeshPhysicalMaterial({ color: linCol('#E48AA0'), vertexColors: true, roughness: 0.5, clearcoat: 1, clearcoatRoughness: 0.22, side: THREE.DoubleSide, emissive: 0x000000, bumpMap: bumpTex, bumpScale: 0.0035 });
+    const palMat = new THREE.MeshPhysicalMaterial({ color: linCol('#E6939B'), vertexColors: true, roughness: 0.55, clearcoat: 0.9, clearcoatRoughness: 0.3, side: THREE.DoubleSide });
+    const tongueMat = new THREE.MeshPhysicalMaterial({ color: linCol('#C9606F'), vertexColors: true, roughness: 0.66, clearcoat: 0.8, clearcoatRoughness: 0.35, side: THREE.DoubleSide, bumpMap: tongueBump, bumpScale: 0.012 });
+    const GUM_BASE = '#E48AA0';
+
+    const root = new THREE.Group(); scene.add(root);
+    const model = new THREE.Group(); model.position.set(0, 0, 1.15); root.add(model);
+    const jaws = {};
+    [['upper', 0.25, -0.24], ['lower', -0.25, 0.2]].forEach(([nm, y, rot]) => {
+      const pivot = new THREE.Group(); pivot.position.set(0, y, -3.5); pivot.rotation.x = rot; model.add(pivot);
+      const g = new THREE.Group(); g.position.set(0, -y, 3.5); pivot.add(g); jaws[nm] = g;
+    });
+    const teeth = [], gums = [];
+
+    ['upper', 'lower'].forEach(jn => {
+      const upper = jn === 'upper', J = jaws[jn], list = TEETH[jn];
+      const arch = upper ? makeArch(1, 0) : makeArch(0.9, -2.6);
+      const V = upper ? 1 : -1;                 // dişten köke doğru dikey yön
+      // Diş merkezleri ve aralık (papil) noktaları, mm cinsinden yay uzunluğu
+      const centers = [], bounds = [0]; let acc = 0;
+      list.forEach(tq => { centers.push(acc + tq[0] / 2); acc += tq[0] + 0.15; bounds.push(acc); });
+      const total = acc;
+      const prop = (s, idx) => {                // diş boyutlarını yay boyunca yumuşak geçişle oku
+        if (s <= centers[0]) return list[0][idx];
+        for (let k = 0; k < centers.length - 1; k++) if (s <= centers[k + 1]) return mix(list[k][idx], list[k + 1][idx], (s - centers[k]) / (centers[k + 1] - centers[k]));
+        return list[list.length - 1][idx];
+      };
+      const frame = sSigned => {
+        const s = Math.abs(sSigned), side = sSigned < 0 ? -1 : 1, a = arch(Math.min(s, total + 6));
+        let x = a.x, z = a.z, tx = a.tx, tz = a.tz;
+        if (s > total + 6) { const e = s - total - 6; x += tx * e; z += tz * e; }
+        const N = side > 0 ? [-tz, tx] : [tz, tx];               // yanak/dudak tarafı
+        return { x: x * side, z, nx: N[0], nz: N[1], d: prop(s, 2), h: prop(s, 1) };
+      };
+
+      // ---- Dişler
+      list.forEach((tq, k) => {
+        [-1, 1].forEach(side => {
+          const [w, h, d, type] = tq, a = arch(centers[k]);
+          const shade = mix(1, 0.8, k / 6);
+          const mat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.3, clearcoat: 0.75, clearcoatRoughness: 0.1, emissive: 0x000000 });
+          const mesh = new THREE.Mesh(toothGeo(type, w * S, h * S, d * S, shade, upper ? 0.7 : 0.84), mat);
+          mesh.castShadow = true; mesh.receiveShadow = true;
+          const tilt = type === 'inc' ? (upper ? -0.24 : 0.13) : type === 'can' ? (upper ? -0.12 : 0.06) : (upper ? 0 : -0.07);
+          mesh.rotation.set(tilt, 0, upper ? Math.PI : 0);
+          const grp = new THREE.Group();
+          const th = Math.atan2(-a.tz, a.tx);
+          grp.position.set(a.x * side * S, upper ? h * S : -h * S, a.z * S);
+          grp.rotation.y = side > 0 ? th : -th;
+          grp.add(mesh); J.add(grp);
+          const zone = k < 2 ? 'on' : upper ? (side < 0 ? 'su' : 'so') : (side < 0 ? 'sa' : 'sl');
+          mesh.userData = { zone, baseY: 0, upper };
+          teeth.push(mesh);
+        });
+      });
+
+      // ---- Diş eti: kavis boyunca uzanan, dişlerin arasına papil uzatan ıslak doku
+      const end = total + 3.5, step = 0.45, M = 30, rows = [];
+      for (let s = -end; s <= end + 1e-6; s += step) rows.push(s);
+      const gp = [], gc = [], gi = [], gu = [];
+      rows.forEach(s => {
+        const f = frame(s), as = Math.abs(s);
+        const capT = as > total - 0.5 ? Math.sqrt(Math.max(0, 1 - Math.pow((as - (total - 0.5)) / (end - total + 0.5), 2))) : 1;
+        let pap = 0;
+        bounds.forEach((b, bi) => { if (bi === bounds.length - 1) return; pap = Math.max(pap, Math.exp(-Math.pow((as - b) / 1.7, 2))); });
+        pap *= mix(3.4, 2.0, clamp(as / total, 0, 1));
+        const cy = upper ? f.h * S : -f.h * S;
+        const g0 = 2.0, ru = (f.d / 2 * 0.92 + 1.3) * S * Math.max(capT, 0.02), rvOut = 9 * S * Math.max(capT, 0.02);
+        for (let j = 0; j <= M; j++) {
+          const ang = (j / M) * Math.PI * 2, c = Math.cos(ang), sn = Math.sin(ang);
+          const cu = Math.sign(c) * Math.pow(Math.abs(c), 0.72);
+          const vert = sn >= 0 ? sn * rvOut : -Math.pow(-sn, 0.55) * (g0 + pap) * S * capT;
+          const px = f.x * S + f.nx * cu * ru, pz = f.z * S + f.nz * cu * ru;
+          gp.push(px, cy + V * (g0 * S + vert), pz);
+          const ao = mix(1, 0.72, clamp(as / total, 0, 1)) * (c < 0 ? 0.82 : 1) * (sn > 0.6 ? 0.9 : 1);
+          gc.push(ao, ao, ao); gu.push((s + end) / 18, (j / M) * 1.6);
+        }
+      });
+      const R = rows.length;
+      for (let r2 = 0; r2 < R - 1; r2++) for (let j = 0; j < M; j++) {
+        const a = r2 * (M + 1) + j, b = a + 1, c2 = a + M + 1, d2 = c2 + 1;
+        gi.push(a, c2, b, b, c2, d2);
+      }
+      const gg = new THREE.BufferGeometry();
+      gg.setAttribute('position', new THREE.Float32BufferAttribute(gp, 3));
+      gg.setAttribute('color', new THREE.Float32BufferAttribute(gc, 3));
+      gg.setAttribute('uv', new THREE.Float32BufferAttribute(gu, 2));
+      gg.setIndex(gi); smooth(gg);
+      const gum = new THREE.Mesh(gg, gumMat.clone());
+      gum.castShadow = true; gum.receiveShadow = true; gum.userData = { zone: 'eti' };
+      J.add(gum); gums.push(gum);
+
+      if (upper) {
+        // ---- Damak: iki yandaki dil tarafı diş eti arasında kubbe, önde damak kıvrımları (rugalar)
+        const pp = [], pc = [], pi = [], K = 26, sMax = total - 1, rowsP = [];
+        for (let s = 0; s <= sMax + 1e-6; s += 1) rowsP.push(s);
+        rowsP.forEach(s => {
+          const fR = frame(Math.max(s, 0.01)), fL = frame(-Math.max(s, 0.01));
+          const lip = f => { const ru = (f.d / 2 * 0.92 + 1.3) * S; return [f.x * S - f.nx * ru * 0.8, f.h * S + 4 * S, f.z * S - f.nz * ru * 0.8]; };
+          const A = lip(fL), B = lip(fR), dome = 0.42 * sstep(0, 20, s) + 0.05;
+          for (let j = 0; j <= K; j++) {
+            const q = j / K, bump = Math.pow(Math.sin(Math.PI * q), 0.75);
+            let y = mix(A[1], B[1], q) + dome * bump;
+            const rug = s < 22 ? 0.022 * Math.max(0, Math.sin(s * 0.85)) * (1 - s / 22) * Math.pow(Math.sin(Math.PI * q), 0.4) * (1 - Math.exp(-Math.pow((q - 0.5) / 0.05, 2))) : 0;
+            const raphe = 0.012 * Math.exp(-Math.pow((q - 0.5) / 0.03, 2));
+            y -= rug + raphe;
+            pp.push(mix(A[0], B[0], q), y, mix(A[2], B[2], q));
+            const ao = mix(1, 0.5, clamp(bump * 0.55 + s / sMax * 0.45, 0, 1));
+            pc.push(ao, ao, ao);
+          }
+        });
+        for (let r2 = 0; r2 < rowsP.length - 1; r2++) for (let j = 0; j < K; j++) {
+          const a = r2 * (K + 1) + j, b = a + 1, c2 = a + K + 1, d2 = c2 + 1; pi.push(a, b, c2, b, d2, c2);
+        }
+        const pg = new THREE.BufferGeometry();
+        pg.setAttribute('position', new THREE.Float32BufferAttribute(pp, 3));
+        pg.setAttribute('color', new THREE.Float32BufferAttribute(pc, 3));
+        pg.setIndex(pi); pg.computeVertexNormals();
+        const pal = new THREE.Mesh(pg, palMat); pal.receiveShadow = true; J.add(pal);
+      } else {
+        // ---- Dil: yassı, ucu daralan, ortada oluklu
+        const tg = new THREE.SphereGeometry(1, 56, 36), tp = tg.attributes.position, tcol = [];
+        const TW = 2.12, TL = 2.55, zc = -1.62, yc = -0.32;
+        for (let i = 0; i < tp.count; i++) {
+          const x = tp.getX(i), y = tp.getZ(i), z = -tp.getY(i);   // kutuplar öne/arkaya
+          let X = x * TW / 2 * (1 - 0.3 * sstep(0.15, 1, z)), Zz = z * TL / 2;
+          let Y = y > 0 ? y * 0.17 : y * 0.42;
+          if (y > 0) Y -= 0.045 * Math.exp(-(X * X) / 0.03) * sstep(-0.9, 0.2, z) * y;
+          Y -= 0.07 * sstep(0.35, 1, z);
+          tp.setXYZ(i, X, yc + Y, zc + Zz);
+          const ao = mix(1, 0.5, sstep(0.1, -0.95, z)) * (y < 0 ? 0.55 : 1) * (0.94 + 0.06 * (Math.abs(Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5) % 1));
+          tcol.push(ao, ao, ao);
+        }
+        tg.setAttribute('color', new THREE.Float32BufferAttribute(tcol, 3));
+        smooth(tg);
+        const tongue = new THREE.Mesh(tg, tongueMat); tongue.receiveShadow = true; tongue.castShadow = true; J.add(tongue);
+      }
+    });
+    root.rotation.set(0.05, 0, 0);
+
+    // Etkileşim: sürükle-döndür, dokun-seç, üzerine gelince hafif kalk
+    const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+    const st = { yaw: 0, pitch: 0.05, dragging: false, sx: 0, sy: 0, moved: 0, last: 0, hover: null, startYaw: 0, startPitch: 0 };
+    const pick = (ev) => {
+      const r = canvas.getBoundingClientRect();
+      ptr.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ptr, camera);
+      const hit = ray.intersectObjects(teeth.concat(gums), false)[0];
+      return hit ? hit.object : null;
+    };
+    canvas.addEventListener('pointerdown', ev => {
+      st.dragging = true; st.sx = ev.clientX; st.sy = ev.clientY; st.moved = 0; st.startYaw = st.yaw; st.startPitch = st.pitch;
+      st.last = performance.now();
+      if (ev.pointerType === 'mouse') canvas.setPointerCapture(ev.pointerId);
+    });
+    canvas.addEventListener('pointermove', ev => {
+      if (st.dragging) {
+        const dx = ev.clientX - st.sx, dy = ev.clientY - st.sy;
+        st.moved = Math.max(st.moved, Math.abs(dx) + Math.abs(dy));
+        st.yaw = Math.max(-1.1, Math.min(1.1, st.startYaw + dx * 0.007));
+        if (ev.pointerType === 'mouse') st.pitch = Math.max(-0.2, Math.min(0.5, st.startPitch + dy * 0.004));
+        st.last = performance.now();
+      } else {
+        const o = pick(ev); st.hover = o && o.userData.zone !== 'eti' ? o : null;
+        canvas.style.cursor = o ? 'pointer' : 'grab';
+      }
+    });
+    const endDrag = ev => {
+      if (!st.dragging) return; st.dragging = false;
+      if (st.moved < 6) { const o = pick(ev); if (o) { PM.zone = o.userData.zone; renderPain(); } }
+    };
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointercancel', () => { st.dragging = false; });
+    canvas.addEventListener('pointerleave', () => { st.hover = null; });
+
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf = 0, prev = 0, slow = 0, frames = 0;
+    const col = new THREE.Color(), emi = new THREE.Color(), WHITE = new THREE.Color(1, 1, 1), BLACK = new THREE.Color(0, 0, 0);
+    const TEAL = linCol('#0a8f8a'), GUMC = linCol(GUM_BASE);
+    function loop() {
+      raf = 0;
+      if (!canvas.isConnected) return;
+      if (document.hidden) { raf = requestAnimationFrame(loop); return; }
+      const now = performance.now(), tt = now / 1000, dt = prev ? Math.min(0.25, (now - prev) / 1000) : 1 / 60;
+      prev = now;
+      const ease = k => 1 - Math.pow(1 - k, dt * 60);       // kare hızından bağımsız yumuşatma
+      // Zayıf cihazda gölgeleri kapatıp çözünürlüğü düşür
+      if (frames < 90) { frames++; if (dt > 0.045) slow++; if (frames === 90 && slow > 45) { renderer.shadowMap.enabled = false; renderer.setPixelRatio(1); M3.resize(); scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); } }
+      const idle = !st.dragging && now - st.last > 3500 && !reduce;
+      if (idle) st.yaw += (Math.sin(tt * 0.35) * 0.45 - st.yaw) * ease(0.02);
+      root.rotation.y += (st.yaw - root.rotation.y) * ease(0.18);
+      root.rotation.x += (st.pitch - root.rotation.x) * ease(0.18);
+      const lv = PM.lv, z = PM.zone, heat = linCol(HEAT[lv]);
+      const speed = 1.6 + lv * 0.45, amp = reduce ? 0 : 0.01 + lv * 0.004;
+      teeth.forEach(tooth => {
+        const u = tooth.userData, hit = z === 'dizi' || u.zone === z, m = tooth.material;
+        if (z === 'dizi') { col.copy(WHITE); emi.copy(TEAL).multiplyScalar(0.12); }
+        else if (hit) { col.copy(heat); emi.copy(heat).multiplyScalar(0.14 + lv * 0.035); }
+        else { col.copy(WHITE); emi.copy(BLACK); }
+        m.color.lerp(col, ease(0.2)); m.emissive.lerp(emi, ease(0.2));
+        const pulse = hit && z !== 'dizi' ? 1 + Math.sin(tt * speed) * amp : 1;
+        const lift = (hit && z !== 'dizi' ? 0.06 : 0) + (st.hover === tooth ? 0.045 : 0);
+        tooth.scale.setScalar(pulse);
+        const ty = u.baseY + (u.upper ? -lift : lift);
+        tooth.position.y += (ty - tooth.position.y) * ease(0.2);
+      });
+      const isGum = z === 'eti';
+      col.copy(isGum ? linCol(HEAT[Math.max(lv, 8)]) : GUMC);
+      emi.copy(isGum ? col : BLACK).multiplyScalar(isGum ? 0.06 + lv * 0.02 : 0);
+      gums.forEach(g => { g.material.color.lerp(col, ease(0.15)); g.material.emissive.lerp(emi, ease(0.15)); });
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(loop);
+    }
+    M3.renderer = renderer; M3.camera = camera; M3.canvas = canvas; M3.st = st;
+    M3.start = () => { if (!raf) raf = requestAnimationFrame(loop); };
+    M3.resize = () => {
+      const host = canvas.parentElement; if (!host) return;
+      const w = host.clientWidth || 320, h = host.clientHeight || w;
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    };
+    M3.ok = true;
+    return true;
+  } catch (e) { console.warn('3D model kurulamadı', e); M3.ok = false; return false; }
+}
+function m3Mount(host) {
+  if (!m3Init()) return false;
+  if (M3.canvas.parentElement !== host) { host.innerHTML = ''; host.appendChild(M3.canvas); const tip = document.createElement('div'); tip.className = 'm3-tip'; tip.textContent = 'Sürükleyip çevirin, dişe dokunun'; host.appendChild(tip); }
+  M3.resize(); M3.start();
+  return true;
+}
+window.addEventListener('resize', () => { if (M3.ok) M3.resize(); });
+
+
+function renderPain() {
+  const mouth = $('#pm-mouth'), ctrl = $('#pm-ctrl');
+  if (!mouth || !ctrl) return;
+  const z = PM_ZONES.find(q => q.k === PM.zone), lv = PM.lv, col = HEAT[lv];
+  const gum = PM.zone === 'eti' ? (lv >= 4 ? '#EE8C96' : '#F2AAB1') : '#F7CDCF';
+  const teeth = pmTeeth().map(t => {
+    const hit = t.z === PM.zone || PM.zone === 'dizi';
+    const look = PM.zone === 'dizi'
+      ? 'background:#FFFFFF;box-shadow:0 0 0 3px var(--brand), 0 6px 12px rgba(8,90,86,.18);'
+      : hit ? `background:${col};box-shadow:0 0 0 3px #FFFFFF, 0 0 ${8 + lv * 3}px ${col};`
+            : 'background:#FFFFFF;box-shadow:0 4px 9px rgba(122,46,74,.13), inset 0 -5px 0 rgba(122,46,74,.05);';
+    const name = PM_ZONES.find(q => q.k === t.z).label;
+    return `<button class="tooth ${PM.first ? 'pop' : ''}" data-act="painZone" data-z="${t.z}" aria-label="${name}"
+      style="left:${(t.x - t.w / 2).toFixed(1)}px;top:${(t.y - t.h / 2).toFixed(1)}px;width:${t.w}px;height:${t.h}px;border-radius:${t.front ? '12px 12px 16px 16px' : '14px'};transform:rotate(${(t.a + 90).toFixed(1)}deg);animation-delay:${t.delay}ms;${look}"></button>`;
+  }).join('');
+  const glowOn = PM.zone !== 'dizi';
+  const is3d = m3Mount(mouth);
+  mouth.classList.toggle('m3d', is3d);
+  if (!is3d) mouth.innerHTML = `
+    <div class="mouth-in">
+      <div class="glow" style="background:radial-gradient(circle, ${col} 0%, transparent 62%);opacity:${glowOn ? (0.2 + lv * 0.06).toFixed(2) : 0}"></div>
+      <div class="beat" style="--sp:${(2.4 - lv * 0.16).toFixed(2)}s">
+        <svg viewBox="0 0 520 520" width="520" height="520" aria-hidden="true">
+          <ellipse cx="260" cy="260" rx="248" ry="248" fill="#FFE6E1" opacity=".85"></ellipse>
+          <path d="M60 244 A200 182 0 0 1 460 244" fill="none" stroke="${gum}" stroke-width="70" stroke-linecap="round" data-act="painZone" data-z="eti" style="cursor:pointer;transition:stroke .3s"></path>
+          <path d="M76 276 A184 166 0 0 0 444 276" fill="none" stroke="${gum}" stroke-width="70" stroke-linecap="round" data-act="painZone" data-z="eti" style="cursor:pointer;transition:stroke .3s"></path>
+        </svg>
+        ${teeth}
+        <div class="hint">dokunun</div>
+      </div>
+    </div>`;
+  const doc = docById(z.doc), f = nextFree(doc);
+  const when = f ? `${relDay(ymd(new Date(f))) || fmtDay(f).split(' ').slice(0, 2).join(' ')} ${hm(f)}` : '';
+  const urgent = lv >= 7 && PM.zone !== 'dizi';
+  const adv = PM.zone === 'dizi'
+    ? { t: 'Çapraşıklık için ortodonti görüşmesi', p: 'Diş teli veya şeffaf plak seçenekleri ilk görüşmede anlatılır; o gün tedavi başlamaz.' }
+    : urgent ? { t: 'Bugün bizi arayın', p: `Şiddetli ağrıda size o günün ilk uygun saatini ayarlayalım: ${S.clinic.phone}. Şişlik veya ateş varsa beklemeyin.` }
+    : lv >= 4 ? { t: 'Bu hafta içinde gelin', p: 'Birkaç gündür süren rahatsızlıkta beklemeden muayene olmak tedaviyi kısaltır.' }
+    : { t: 'Size uygun bir gün seçin', p: 'Hafif ve gelip geçen hassasiyetlerde uygun bir günde kontrol randevusu yeterli olabilir.' };
+  const segs = HEAT.map((c, i) => `<button class="lvl" data-act="painLv" data-l="${i}" aria-label="Rahatsızlık ${i} / 10" aria-pressed="${i === lv}"
+      style="background:${i <= lv ? c : '#FFFFFF'};color:${i <= lv && i >= 7 ? '#FFFFFF' : 'var(--ink)'};${i === lv ? 'box-shadow:0 0 0 2.5px var(--ink)' : 'box-shadow:inset 0 0 0 1.5px var(--mint-2)'}">${i}</button>`).join('');
+  ctrl.innerHTML = `
+    <div>
+      <p class="pm-label">1. Rahatsızlık nerede?</p>
+      <div class="zones">${PM_ZONES.map(q => `<button class="zone" data-act="painZone" data-z="${q.k}" aria-pressed="${q.k === PM.zone}">${q.label}</button>`).join('')}</div>
+    </div>
+    <div>
+      <div class="scale-h"><p class="pm-label" style="margin:0">2. Ne kadar rahatsız ediyor?</p><span><b style="color:${lv >= 5 ? HEAT[Math.max(lv, 7)] : 'var(--ink)'}">${lv}</b> / 10</span></div>
+      <div class="segs">${segs}</div>
+      <div class="scale-ends"><span>Hafif</span><span>Orta</span><span>Dayanılmaz</span></div>
+    </div>
+    <div class="pm-card ${urgent ? 'urgent' : ''}">
+      <b class="t">${adv.t}</b>
+      <p>${esc(adv.p)}</p>
+      <div class="row2">
+        <div><b>${esc(docLabel(doc))}</b><small>${esc(doc.spec)}${when ? ` · en yakın: ${when}` : ''}</small></div>
+        ${f ? `<button class="btn" data-act="quick" data-doc="${doc.id}" data-s="${f}">${hm(f)} randevusunu al</button>`
+            : `<button class="btn" data-act="book" data-doc="${doc.id}">Takvimi aç</button>`}
+      </div>
+    </div>
+    <span class="pm-note">Seçimleriniz yalnızca sizi doğru hekime yönlendirmek içindir, kaydedilmez. Tanı muayenede konur.</span>`;
+  if (PM.first) setTimeout(() => { PM.first = false; }, 1200);
+}
+
+function renderSite() {
+  const c = S.clinic;
+  $('#url').innerHTML = `<b>${esc(c.domain)}</b>`;
+  const dow = isoDow(new Date());
+  const todayHours = dow === 7 ? null : dow === 6 ? '10:00 – 14:00' : '09:00 – 18:00';
+  const soft = col => `background:color-mix(in srgb, ${col} 16%, #fff);color:${col}`;
+  const hrs = [['Pazartesi – Cuma', '09:00 – 18:00', dow <= 5], ['Öğle arası', '12:30 – 13:30', false], ['Cumartesi', '10:00 – 14:00', dow === 6], ['Pazar', 'Kapalı', dow === 7]];
+  const bandItems = SERVICES.map(s => s[0]).concat(['Çocuk diş kontrolü', 'Diş taşı temizliği']);
+  const band = bandItems.concat(bandItems).map(t => `<span>${t}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${TOOTH_D}"/></svg>`).join('');
+  const steps = [['Karşılama', 'Adınızı ve randevu saatinizi söylemeniz yeterli.', '5 dk'], ['Tanışma', 'Hekiminiz şikâyetinizi ve beklentinizi dinler.', '5 dk'],
+    ['Muayene', 'Ağız içi kontrol; gerekirse röntgen çekilir.', '10–15 dk'], ['Birlikte plan', 'Seçenekler ve süre konuşulur, karar sizindir.', '5 dk']];
+  const faq = [['Yanımda ne getirmeliyim?', 'Kimliğiniz ve varsa kullandığınız ilaçların adları yeterli. Eski röntgenleriniz varsa getirebilirsiniz.'],
+    ['Randevuma geç kalırsam ne olur?', 'Bizi aramanız yeterli. Hekiminizin programına göre aynı gün ya da size uygun yeni bir saat ayarlanır.'],
+    ['Çocuğumla gelebilir miyim?', 'Evet. Çocuğunuz için de randevu almak isterseniz aynı güne art arda iki saat seçebilirsiniz.'],
+    ['Randevumu nasıl iptal ederim?', 'Onay e-postasındaki bağlantıdan ya da bizi arayarak. Boşalan saat başka bir hastaya açılır.']];
+  $('#site').innerHTML = `
+  <div class="s-strip"><div class="s-in">
+    <span>${todayHours ? `Bugün <b class="tnum">${todayHours}</b> arası açığız` : 'Bugün kapalıyız. Online randevu her zaman açık.'}</span>
+    <span class="s-strip-phone">Telefon: <b class="tnum">${esc(c.phone)}</b></span>
+  </div></div>
+  <header class="s-head"><div class="s-in">
+    <div class="logo"><span class="mark">${TOOTH}</span><span>${esc(c.name)}</span></div>
+    <nav class="s-nav" aria-label="Site"><button data-act="scrollTo" data-t="s-docs">Hekimler</button><button data-act="scrollTo" data-t="s-visit">İlk ziyaret</button><button data-act="scrollTo" data-t="s-svc">Tedaviler</button><button data-act="scrollTo" data-t="s-contact">İletişim</button></nav>
+    <button class="btn" data-act="book">Randevu al</button>
+  </div></header>
+  <section class="s-hero pm-hero"><div class="s-in pm-grid">
+    <div class="pm-intro">
+      <p class="where">${ICON.pin}${esc(c.district)}, İstanbul</p>
+      <h1>Nereniz rahatsız? Doğru hekim, en yakın saat.</h1>
+      <p class="sub" style="margin-bottom:0">Ağızda rahatsız olduğunuz yere dokunun ve ne kadar rahatsız ettiğini seçin. Size uygun hekimi ve boş saati gösterelim.</p>
+    </div>
+    <div class="pm-mouth"><div class="mouth" id="pm-mouth"></div></div>
+    <div class="pm-ctrl" id="pm-ctrl"></div>
+  </div></section>
+  <div class="band" aria-label="Tedaviler"><div class="track">${band}</div></div>
+  <section class="s-sec" id="s-docs"><div class="s-in">
+    <h2>Hekimlerimiz</h2>
+    <p class="lead">Kontrol için gelecekseniz hekiminizi doğrudan seçebilirsiniz.</p>
+    <div class="docs">${S.doctors.map(d => {
+      const f = nextFree(d); const rel = f ? relDay(ymd(new Date(f))) : '';
+      const when = f ? (rel || `${new Date(f).getDate()} ${MONTHS[new Date(f).getMonth()].slice(0, 3)}`) : '';
+      return `
+      <article class="doc">
+        <div class="portrait" style="${soft(d.color)}">${initials(d.name)}</div>
+        <div>
+          <h3>${esc(docLabel(d))}</h3>
+          <span class="spec">${esc(d.spec)}</span>
+          <p>${esc(d.bio)}</p>
+          <div class="next">${f ? `<small>En yakın boş saat</small><button class="qslot tnum ${rel === 'Bugün' ? 'today' : ''}" data-act="quick" data-doc="${d.id}" data-s="${f}">${hm(f)}<span>${when}</span></button>` : '<small>Yakında boş saat yok</small>'}</div>
+          <button class="btn sec" data-act="book" data-doc="${d.id}">Başka bir gün seç</button>
+        </div>
+      </article>`; }).join('')}
+    </div>
+  </div></section>
+  <section class="s-sec tint" id="s-visit"><div class="s-in">
+    <h2>İlk kez mi geliyorsunuz?</h2>
+    <p class="lead">Kapıdan girdiğiniz andan muayene sonuna kadar neler olacağını anlattık. O gün hiçbir karar sizden istenmez.</p>
+    <div class="visit">
+      <div><h3>İlk ziyaretiniz dört adımda</h3>
+        <ol class="vsteps">${steps.map(([t, d, m], i) => `<li class="vstep ${i === 0 ? 'on' : ''}"><span class="n">${i + 1}</span><div><b>${t}</b><span>${d}</span></div><small>${m}</small></li>`).join('')}</ol>
+      </div>
+      <div><h3>Hastaların en çok sorduğu</h3>
+        <div class="faq">${faq.map(([q, a], i) => `<details ${i === 0 ? 'open' : ''}><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>
+      </div>
+    </div>
+  </div></section>
+  <section class="s-sec" id="s-svc"><div class="s-in">
+    <h2>Tedaviler</h2>
+    <p class="lead">Kliniğimizde uygulanan başlıca tedaviler. Size uygun tedavi, muayene sonrası hekiminizle birlikte belirlenir.</p>
+    <div class="svc">${SERVICES.map(([t, d, ic]) => `<div><span class="ic">${ICON[ic]}</span><div><b>${t}</b><span>${d}</span></div></div>`).join('')}</div>
+  </div></section>
+  <section class="s-sec tint" id="s-contact"><div class="s-in">
+    <h2>Çalışma saatleri ve iletişim</h2>
+    <p class="lead">Randevusuz gelmeden önce lütfen arayarak bilgi alın.</p>
+    <div class="s-contact">
+      <table class="hours tnum"><tbody>
+        ${hrs.map(([a, b, t]) => `<tr class="${t ? 'is-today' : ''}"><td>${a}</td><td>${b}</td></tr>`).join('')}
+      </tbody></table>
+      <div class="contact">
+        <div><small>Adres</small><span style="text-align:right">${esc(c.address)}</span></div>
+        <div><small>Telefon</small><b class="tnum" style="user-select:all">${esc(c.phone)}</b></div>
+        <div><small>WhatsApp</small><a href="https://wa.me/${esc(c.wa)}" target="_blank" rel="noopener">Mesaj gönder</a></div>
+        <div><small>Yol tarifi</small><a href="https://maps.google.com/?q=Kad%C4%B1k%C3%B6y+%C4%B0stanbul" target="_blank" rel="noopener">Google Haritalar'da aç</a></div>
+      </div>
+    </div>
+  </div></section>
+  <footer class="s-foot"><div class="s-in">
+    <div><button class="link" data-act="kvkk">KVKK Aydınlatma Metni</button></div>
+    <div>© 2026 ${esc(c.name)}. Bu sitedeki bilgiler genel bilgilendirme amaçlıdır; tanı ve tedavi için hekiminize başvurunuz.</div>
+    <div>Demo içeriktir, hayali bir kliniği temsil eder.</div>
+  </div></footer>`;
+  renderPain();
+}
+
+// İlk ziyaret adımları sırayla vurgulanır (sayfayı yeniden çizmeden)
+(() => {
+  let i = 0;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+  setInterval(() => {
+    const els = document.querySelectorAll('.vstep'); if (!els.length) return;
+    i = (i + 1) % els.length;
+    els.forEach((e, j) => e.classList.toggle('on', j === i));
+  }, 3200);
+})();
+
+let B = null;
+function openBooking(docId) {
+  B = { mode: 'book', step: docId ? 2 : 1, doctorId: docId || null, date: null, slot: null,
+        f: { name: '', phone: '', email: '', note: '', kvkk: false }, err: null, month: 0 };
+  renderSheet();
+}
+function closeSheet() { B = null; renderSheet(); }
+function renderSheet() {
+  const scrim = $('#sheet-scrim'), el = $('#sheet');
+  if (!B) { scrim.hidden = true; el.innerHTML = ''; return; }
+  scrim.hidden = false;
+  if (B.mode === 'kvkk') { el.innerHTML = sheetFrame('Aydınlatma metni', kvkkHtml(), false); return; }
+  if (B.mode === 'done') { el.innerHTML = sheetFrame('Randevu', doneHtml(), false); return; }
+  if (B.mode === 'cancel') { el.innerHTML = sheetFrame('Randevu iptali', cancelHtml(), false); return; }
+  const labels = ['Hekim', 'Gün', 'Saat', 'Bilgiler'];
+  const steps = `<ol class="steps">${labels.map((l, i) => `<li class="${i + 1 === B.step ? 'on' : i + 1 < B.step ? 'past' : ''}">${l}</li>`).join('')}</ol>`;
+  el.innerHTML = sheetFrame('Online randevu', [null, step1, step2, step3, step4][B.step](), B.step > 1, steps);
+}
+function sheetFrame(title, body, back, extra = '') {
+  return `<div class="sh-head">
+      ${back ? '<button class="icon-btn" data-act="back" aria-label="Geri">←</button>' : '<span></span>'}
+      <b>${title}</b>
+      <button class="icon-btn" data-act="close" aria-label="Kapat">×</button>
+    </div>${extra}<div class="sh-body">${body}</div>`;
+}
+function step1() {
+  return `<h3>Hangi hekimden randevu almak istersiniz?</h3><div class="pick">${S.doctors.map(d => `
+    <button class="opt ${B.doctorId === d.id ? 'sel' : ''}" data-act="pickDoc" data-doc="${d.id}">
+      <span class="av sm" style="background:${d.color}">${initials(d.name)}</span>
+      <span><b>${esc(docLabel(d))}</b><small>${esc(d.spec)} · ${d.slot} dk</small></span>
+      <span class="chev">›</span>
+    </button>`).join('')}</div>`;
+}
+function step2() {
+  const doc = docById(B.doctorId);
+  const today = midnight(new Date());
+  const start = addDays(mondayOf(today), B.month * 28);
+  let cells = DAYS_S.map(d => `<div class="wd">${d}</div>`).join('');
+  for (let i = 0; i < 28; i++) {
+    const d = addDays(start, i), ds = ymd(d);
+    const free = d < today ? 0 : daySlots(doc, ds).filter(s => s.state === 'free').length;
+    cells += `<button class="day ${ds === ymd(today) ? 'today' : ''} ${B.date === ds ? 'sel' : ''}" data-act="pickDate" data-date="${ds}" ${free ? '' : 'disabled'} aria-label="${fmtDay(d.getTime())}${free ? `, ${free} boş saat` : ', müsait değil'}">
+      <b>${d.getDate()}</b><i>${d < today ? '' : free ? free + ' boş' : isoDow(d) === 7 ? 'kapalı' : 'dolu'}</i></button>`;
+  }
+  const end = addDays(start, 27);
+  const range = start.getMonth() === end.getMonth() ? `${MONTHS[start.getMonth()]} ${start.getFullYear()}` : `${MONTHS[start.getMonth()]} – ${MONTHS[end.getMonth()]} ${end.getFullYear()}`;
+  return `<div class="ctx"><b>${esc(docLabel(doc))}</b> · ${esc(doc.spec)}</div>
+    <h3>Gün seçin</h3>
+    <div class="cal-h"><b>${range}</b>
+      <span class="inline">
+        <button class="nav-btn" data-act="calMove" data-d="-1" ${B.month === 0 ? 'disabled' : ''} aria-label="Önceki 4 hafta">‹</button>
+        <button class="nav-btn" data-act="calMove" data-d="1" ${B.month >= 1 ? 'disabled' : ''} aria-label="Sonraki 4 hafta">›</button>
+      </span></div>
+    <div class="cal tnum">${cells}</div>
+    <p class="hint" style="margin-top:10px">Randevular en erken 1 saat sonrasına ve en fazla 60 gün ilerisine alınabilir.</p>`;
+}
+function step3() {
+  const doc = docById(B.doctorId);
+  const shown = daySlots(doc, B.date).filter(s => s.state !== 'past');
+  const grp = (label, arr) => arr.length ? `<div class="slot-g"><small>${label}</small><div class="slots">${arr.map(s => `
+      <button class="slot ${B.slot === s.s ? 'sel' : ''}" data-act="pickSlot" data-s="${s.s}" ${s.state === 'free' ? '' : 'disabled'} aria-label="${hm(s.s)}${s.state === 'free' ? '' : ', dolu'}">${hm(s.s)}</button>`).join('')}</div></div>` : '';
+  return `<div class="ctx"><b>${esc(docLabel(doc))}</b> · ${fmtDay(at(B.date, '12:00').getTime())} · ${doc.slot} dk</div>
+    ${B.err ? `<div class="err" role="alert">${esc(B.err)}</div>` : ''}
+    <h3>Saat seçin</h3>
+    ${shown.length ? grp('Sabah', shown.filter(s => new Date(s.s).getHours() < 13)) + grp('Öğleden sonra', shown.filter(s => new Date(s.s).getHours() >= 13))
+                   : '<div class="empty">Bu gün için boş saat kalmadı.</div>'}
+    <p class="hint">Üstü çizili saatler dolu.</p>`;
+}
+function step4() {
+  const doc = docById(B.doctorId);
+  return `<div class="ctx"><b>${esc(docLabel(doc))}</b><br>${fmtLong(B.slot)} – ${hm(B.slot + doc.slot * 60000)}</div>
+    ${B.err ? `<div class="err" role="alert">${esc(B.err)}</div>` : ''}
+    <form id="bk-form" novalidate>
+      <div class="field"><label for="bk-name">Ad soyad</label>
+        <input id="bk-name" name="name" autocomplete="name" value="${esc(B.f.name)}" maxlength="80"></div>
+      <div class="field"><label for="bk-phone">Telefon</label>
+        <input id="bk-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx" value="${esc(B.f.phone)}"></div>
+      <div class="field"><label for="bk-email">E-posta <small>(isteğe bağlı)</small></label>
+        <input id="bk-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ornek@mail.com" value="${esc(B.f.email)}">
+        <span class="hint">Bilgilendirme ve hatırlatma almak isterseniz e-posta adresinizi girin.</span></div>
+      <div class="field"><label for="bk-note">Not <small>(isteğe bağlı)</small></label>
+        <textarea id="bk-note" name="note" maxlength="300" placeholder="Ör. ilk muayene, kontrol">${esc(B.f.note)}</textarea></div>
+      <label class="check"><input id="bk-kvkk" name="kvkk" type="checkbox" ${B.f.kvkk ? 'checked' : ''}>
+        <span><button type="button" class="link" data-act="kvkk">Aydınlatma metnini</button> okudum. Randevum için ad, telefon ve e-posta bilgilerimin işlenmesini onaylıyorum.</span></label>
+      <button class="btn lg full" type="submit">Randevuyu oluştur</button>
+      <p class="hint" style="text-align:center;margin:8px 0 0">Bu form otomatik (bot) gönderimlere karşı korunur.</p>
+    </form>`;
+}
+function doneHtml() {
+  const a = S.appts.find(x => x.id === B.apptId), doc = docById(a.doctorId);
+  return `<div class="done">
+    <div class="ok-ic">✓</div>
+    <h3>${a.status === 'pending' ? 'Randevu talebiniz alındı' : 'Randevunuz oluşturuldu'}</h3>
+    <div class="sum">
+      <div><small>Hekim</small><b>${esc(docLabel(doc))}</b></div>
+      <div><small>Tarih</small><b>${fmtDay(a.start)}</b></div>
+      <div><small>Saat</small><b class="tnum">${hm(a.start)} – ${hm(a.end)}</b></div>
+      <div><small>Adres</small><b>${esc(S.clinic.address)}</b></div>
+    </div>
+    <p class="note">${a.email
+      ? `Onay e-postası <b>${esc(a.email)}</b> adresine gönderildi. Randevunuzdan ${S.clinic.reminderHours} saat önce hatırlatma alacaksınız. E-postadaki bağlantıyla randevunuzu iptal edebilirsiniz.`
+      : 'E-posta bırakmadığınız için hatırlatma gönderilmeyecek. Randevunuz sisteme kaydedildi; değişiklik için kliniği arayabilirsiniz.'}</p>
+    <div class="stack">
+      <button class="btn lg full sec" data-act="openCancel" data-token="${a.token}">${a.email ? 'E-postadaki iptal bağlantısını dene' : 'Randevuyu iptal et'}</button>
+      <button class="btn lg full" data-act="close">Siteye dön</button>
+    </div></div>`;
+}
+function cancelHtml() {
+  const a = S.appts.find(x => x.token === B.token);
+  if (!a) return '<div class="empty">Randevu bulunamadı.</div>';
+  const doc = docById(a.doctorId);
+  const can = ['pending','confirmed'].includes(a.status) && a.start > Date.now();
+  const sum = `<div class="sum">
+      <div><small>Hekim</small><b>${esc(docLabel(doc))}</b></div>
+      <div><small>Tarih</small><b>${fmtLong(a.start)}</b></div>
+      <div><small>Durum</small><b>${STATUS[a.status]}</b></div></div>`;
+  if (a.status === 'cancelled') return `<div class="done"><div class="ok-ic">✓</div><h3>Randevunuz iptal edildi</h3>${sum}
+      <p class="note">Bu saat diğer hastalar için yeniden açıldı.</p><button class="btn lg full" data-act="close">Siteye dön</button></div>`;
+  if (!can) return `${sum}<p class="note">Bu randevu artık iptal edilemiyor. Lütfen kliniği arayın: <b class="tnum">${esc(S.clinic.phone)}</b></p>`;
+  return `<h3>Randevunuzu iptal etmek istiyor musunuz?</h3>${sum}
+    <div class="stack">${B.confirm
+      ? `<p class="note">İptal ettiğinizde bu saat başka hastalara açılır. Onaylıyor musunuz?</p>
+         <button class="btn lg full" style="background:var(--bad)" data-act="doCancel">Evet, iptal et</button>
+         <button class="btn lg full sec" data-act="cancelNo">Vazgeç</button>`
+      : `<button class="btn lg full" style="background:var(--bad)" data-act="cancelAsk">Randevuyu iptal et</button>
+         <button class="btn lg full sec" data-act="close">Randevumu koru</button>`}</div>`;
+}
+function kvkkHtml() {
+  return `<div class="kvkk-text">
+    <p><b>${esc(S.clinic.name)}</b> olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu sıfatıyla aşağıdaki bilgileri paylaşırız.</p>
+    <p><b>İşlenen veriler:</b> Ad soyad, telefon numarası, isteğe bağlı olarak e-posta adresi ve randevu bilgileri (hekim, tarih, saat).</p>
+    <p><b>Amaç:</b> Randevunuzun oluşturulması, yönetilmesi ve e-posta bırakmanız hâlinde hatırlatma yapılması.</p>
+    <p><b>Sağlık verisi:</b> Bu form üzerinden tedavi veya sağlık bilgisi toplanmaz.</p>
+    <p><b>Haklarınız:</b> Kanunun 11. maddesi kapsamındaki taleplerinizi kliniğimize iletebilirsiniz.</p>
+    <p class="hint">Demo metnidir. Gerçek kurulumda her klinik için hukuki danışmanla hazırlanır.</p>
+    <button class="btn lg full" data-act="kvkkBack">Anladım</button></div>`;
+}
+
+/* ------------------------------------------------- hastalar (mini CRM)
+   Hasta listesi randevulardan türetilir: kimlik = telefon. Yalnızca iletişim ve randevu bilgisi; sağlık bilgisi yok. */
+const DAY = 86400000;
+const TAGS = { new: ['Yeni hasta', 'tg-new'], regular: ['Düzenli', 'tg-reg'], lapsed: ['Uzun süredir gelmeyen', 'tg-lap'] };
+const SRC = { web: 'Web', panel: 'Telefon', whatsapp: 'WhatsApp' };
+const SRC_LONG = { web: 'Web sitesi', panel: 'Telefon (panel)', whatsapp: 'WhatsApp asistanı' };
+const fmtShort = ms => { const d = new Date(ms); return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}${d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : ''}`; };
+const monthsAgo = ms => Math.max(1, Math.round((Date.now() - ms) / (30.44 * DAY)));
+const fmtAgo = ms => { const m = Math.round((Date.now() - ms) / 60000); if (m < 60) return `${Math.max(1, m)} dk önce`; const h = Math.round(m / 60); if (h < 24) return `${h} saat önce`; return `${Math.round(h / 24)} gün önce`; };
+const tagHtml = p => p.tags.map(t => `<span class="tag ${TAGS[t][1]}">${TAGS[t][0]}</span>`).join('');
+
+function patients() {
+  const now = Date.now(), map = new Map();
+  const blank = (phone, name) => ({ phone, name, email: null, list: [], att: 0, ns: 0, cx: 0, first: null, last: null, next: null, lastAt: -1 });
+  for (const a of S.appts) {
+    let p = map.get(a.phone);
+    if (!p) map.set(a.phone, p = blank(a.phone, a.name));
+    p.list.push(a);
+    if (a.createdAt >= p.lastAt) { p.lastAt = a.createdAt; p.name = a.name; }
+    if (a.email) p.email = a.email;
+    if (a.status === 'attended') { p.att++; if (!p.last || a.start > p.last) p.last = a.start; }
+    else if (a.status === 'no_show') p.ns++;
+    else if (a.status === 'cancelled') p.cx++;
+    if (a.status !== 'cancelled' && (!p.first || a.start < p.first)) p.first = a.start;
+    if (['pending', 'confirmed'].includes(a.status) && a.start > now && (!p.next || a.start < p.next.start)) p.next = a;
+  }
+  for (const h of S.handoffs || []) if (!h.done && !map.has(h.phone)) map.set(h.phone, blank(h.phone, h.name));
+  const out = [...map.values()];
+  for (const p of out) {
+    p.list.sort((a, b) => b.start - a.start);
+    p.recent = p.list.length ? p.list[0].start : 0;
+    p.tags = [];
+    if (p.first && p.first >= now - 30 * DAY) p.tags.push('new');
+    if (p.att >= 5) p.tags.push('regular');
+    if (p.last && p.last < now - 180 * DAY && !p.next) p.tags.push('lapsed');
+    const ho = (S.handoffs || []).filter(h => h.phone === p.phone && !h.done).sort((a, b) => b.at - a.at)[0];
+    const lastPast = p.list.find(a => a.start <= now && a.status !== 'cancelled');
+    let why = null, since = 0;
+    if (ho) { why = `WhatsApp'tan geri dönüş istedi · ${fmtAgo(ho.at)}`; since = ho.at; }
+    else if (!p.next && lastPast && lastPast.status === 'no_show' && lastPast.start > now - 60 * DAY) { why = `Randevusuna gelmedi · ${fmtShort(lastPast.start)}`; since = lastPast.start; }
+    else if (p.tags.includes('lapsed')) { why = `Kontrol zamanı geldi · son ziyaret ${monthsAgo(p.last)} ay önce`; since = p.last; }
+    const c = (S.contacts || {})[p.phone];
+    p.why = why; p.calledAt = c ? c.at : null; p.called = !!(why && c && c.at > since);
+  }
+  return out;
+}
+function markCalled(phone) {
+  S.contacts = S.contacts || {};
+  S.contacts[phone] = { at: Date.now() };
+  (S.handoffs || []).forEach(h => { if (h.phone === phone) h.done = true; });
+  save();
+}
+function pPatients() {
+  const all = patients();
+  const cnt = k => all.filter(p => p.tags.includes(k)).length;
+  const F = [['all', 'Tümü', all.length], ['recall', 'Tekrar aranacaklar', all.filter(p => p.why && !p.called).length],
+    ['new', 'Yeni', cnt('new')], ['regular', 'Düzenli', cnt('regular')], ['lapsed', 'Uzun süredir gelmeyen', cnt('lapsed')]];
+  return `<div class="p-head"><h2>Hastalar</h2>
+      <input class="p-search" id="pt-q" type="search" placeholder="İsim veya telefon ara" value="${esc(P.pq)}" aria-label="Hasta ara" data-pq="1">
+      <button class="ghost" data-act="exportCsv">CSV indir</button></div>
+    <p class="explain">Hasta listesi randevulardan kendiliğinden oluşur. Yalnızca iletişim ve randevu bilgisi tutulur; tedavi veya sağlık bilgisi tutulmaz.</p>
+    <div class="chips">${F.map(([k, l, n]) => `<button class="chip" data-act="pf" data-f="${k}" aria-pressed="${P.pf === k}">${l}<span class="cnum">${n}</span></button>`).join('')}</div>
+    <div id="pt-list">${ptList(all)}</div>`;
+}
+function ptList(all) {
+  all = all || patients();
+  const q = P.pq.trim().toLocaleLowerCase('tr'), qd = q.replace(/\D/g, '').replace(/^0/, '');
+  let list = all.filter(p => P.pf === 'all' ? true : P.pf === 'recall' ? !!p.why : p.tags.includes(P.pf));
+  if (q) list = list.filter(p => p.name.toLocaleLowerCase('tr').includes(q) || (qd.length >= 3 && p.phone.includes(qd)));
+  const wa = p => `<a class="mini" href="https://wa.me/${p.phone.slice(1)}" target="_blank" rel="noopener" data-act="noop">WhatsApp</a>`;
+  if (P.pf === 'recall') {
+    list.sort((a, b) => (a.called - b.called) || (b.why.startsWith('WhatsApp') - a.why.startsWith('WhatsApp')) || (b.recent - a.recent));
+    if (!list.length) return '<div class="empty">Tekrar aranacak hasta yok.</div>';
+    return `<p class="explain" style="margin-top:0">Kontrol zamanı gelenler (son ziyaretinin üzerinden 6 ay geçmiş), son 60 günde randevusuna gelmeyenler ve WhatsApp'tan geri dönüş isteyenler. Aradıktan sonra "Arandı" deyin.</p>
+      <div class="list">${list.map(p => `<div class="row pt ${p.called ? 'done' : ''}" data-act="patient" data-ph="${p.phone}">
+        <span class="av sm" style="background:var(--brand)">${esc(initials(p.name))}</span>
+        <div><div class="r-name">${esc(p.name)} ${p.called ? `<span class="pill st-attended">Arandı · ${fmtShort(p.calledAt)}</span>` : ''}</div>
+          <div class="r-sub"><span class="why">${esc(p.why)}</span> · <span class="tnum">${fmtPhone(p.phone)}</span></div></div>
+        <div class="r-right"><a class="mini pri" href="tel:${p.phone}" data-act="noop">Ara</a>${wa(p)}${p.called ? '' : `<button class="mini ok" data-act="called" data-ph="${p.phone}">Arandı</button>`}</div></div>`).join('')}</div>`;
+  }
+  list.sort((a, b) => b.recent - a.recent);
+  if (!list.length) return '<div class="empty">Bu filtreye uyan hasta yok.</div>';
+  return `<div class="list">${list.map(p => `<div class="row pt" data-act="patient" data-ph="${p.phone}">
+      <div class="r-time"><b>${p.last ? fmtShort(p.last) : '—'}</b><small>son ziyaret</small></div>
+      <div><div class="r-name">${esc(p.name)} ${tagHtml(p)}</div>
+        <div class="r-sub"><span class="tnum">${fmtPhone(p.phone)}</span> · ${p.list.length} randevu${p.ns ? ` · ${p.ns} gelmedi` : ''}${p.next ? ` · sonraki: ${fmtShort(p.next.start)} ${hm(p.next.start)}` : ''}</div></div>
+      <div class="r-right"><span class="chev" aria-hidden="true">›</span></div></div>`).join('')}</div>`;
+}
+function patientHtml(phone) {
+  const p = patients().find(x => x.phone === phone);
+  if (!p) return '<div class="empty">Hasta bulunamadı.</div>';
+  return `<div><div style="font-size:20px;font-weight:800">${esc(p.name)}</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${tagHtml(p) || '<span class="hint">Etiket yok</span>'}</div></div>
+    ${p.why && !p.called ? `<div class="note" style="margin:0"><b>Tekrar aranacak:</b> ${esc(p.why)}</div>` : ''}
+    <div class="sum" style="margin:0">
+      <div><small>Telefon</small><b class="tnum">${fmtPhone(p.phone)}</b></div>
+      <div><small>E-posta</small><b>${p.email ? esc(p.email) : '—'}</b></div>
+      <div><small>İlk randevu</small><b>${p.first ? fmtShort(p.first) : '—'}</b></div>
+      <div><small>Son ziyaret</small><b>${p.last ? fmtShort(p.last) : '—'}</b></div>
+      <div><small>Sonraki randevu</small><b>${p.next ? fmtLong(p.next.start) : '—'}</b></div>
+      <div><small>Randevular</small><b>${p.list.length} toplam · ${p.att} geldi · ${p.ns} gelmedi · ${p.cx} iptal</b></div>
+      <div><small>Son arama</small><b>${p.calledAt ? fmtLong(p.calledAt) : '—'}</b></div>
+    </div>
+    <div class="btn-row">
+      <a class="mini pri" href="tel:${p.phone}" data-act="noop">Ara</a>
+      <a class="mini" href="https://wa.me/${p.phone.slice(1)}" target="_blank" rel="noopener" data-act="noop">WhatsApp</a>
+      <button class="mini ok" data-act="called" data-ph="${p.phone}">Arandı olarak işaretle</button>
+      <button class="mini" data-act="newFor" data-ph="${p.phone}">Randevu ver</button>
+    </div>
+    <div><small style="color:var(--ink-3);font-weight:600">Randevu geçmişi</small>
+      ${p.list.length ? `<div class="hist" style="margin-top:6px">${p.list.slice(0, 30).map(a => { const d = docById(a.doctorId); return `<button data-act="open" data-id="${a.id}">
+        <span class="tnum">${fmtShort(a.start)} ${hm(a.start)}</span><span>${esc(docLabel(d))} <span class="src">${SRC[a.source]}</span></span>${pill(a.status)}</button>`; }).join('')}</div>` : '<div class="empty" style="margin-top:6px">Henüz randevusu yok.</div>'}</div>
+    <p class="hint" style="margin:0">Bu kartta yalnızca iletişim ve randevu bilgisi bulunur; tedavi veya sağlık bilgisi tutulmaz.</p>`;
+}
+async function exportCsv() {
+  const d = ms => ms ? new Date(ms).toLocaleDateString('tr-TR') : '';
+  const rows = [['Ad Soyad', 'Telefon', 'E-posta', 'İlk randevu', 'Son ziyaret', 'Sonraki randevu', 'Toplam randevu', 'Geldi', 'Gelmedi', 'İptal', 'Etiketler']];
+  for (const p of patients().sort((a, b) => a.name.localeCompare(b.name, 'tr')))
+    rows.push([p.name, fmtPhone(p.phone), p.email || '', d(p.first), d(p.last), p.next ? `${d(p.next.start)} ${hm(p.next.start)}` : '',
+      p.list.length, p.att, p.ns, p.cx, p.tags.map(t => TAGS[t][0]).join(', ')]);
+  const cell = v => { v = String(v); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return /[;"\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const csv = '\ufeff' + rows.map(r => r.map(cell).join(';')).join('\r\n');
+  const name = `hastalar-${ymd(new Date())}.csv`;
+  // claude.ai içinde açıldıysa platformun indirme onayı; GitHub Pages / kendi sitesinde normal indirme
+  let dl = null;
+  try { dl = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('downloads') : null; } catch (e) { dl = null; }
+  if (dl) {
+    try { await dl.save({ filename: name, data: csv }); toast(`${rows.length - 1} hasta "${name}" olarak indirildi. Excel'de açılabilir.`); }
+    catch (e) { if (e && e.code !== 'declined') toast('Dosya bu görünümde indirilemedi.'); }
+    return;
+  }
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  toast(`${rows.length - 1} hasta "${name}" olarak indirildi. Excel'de açılabilir.`);
+}
+
+/* ------------------------------------------------------- aylık rapor */
+const ymOf = ms => { const d = new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; };
+const monthRange = ym => { const [y, m] = ym.split('-').map(Number); return [new Date(y, m - 1, 1).getTime(), new Date(y, m, 1).getTime()]; };
+const shiftYm = (ym, n) => { const [y, m] = ym.split('-').map(Number); return ymOf(new Date(y, m - 1 + n, 1).getTime()); };
+const ymLabel = ym => { const [y, m] = ym.split('-').map(Number); return `${MONTHS[m - 1]} ${y}`; };
+function monthStats(ym) {
+  const [s, e] = monthRange(ym);
+  const inM = S.appts.filter(a => a.start >= s && a.start < e), live = inM.filter(a => a.status !== 'cancelled');
+  const c = st => inM.filter(a => a.status === st).length;
+  const first = {};
+  for (const a of S.appts) if (a.status !== 'cancelled' && (!first[a.phone] || a.start < first[a.phone])) first[a.phone] = a.start;
+  const att = c('attended'), ns = c('no_show');
+  return { s, e, inM, live, att, ns, cx: c('cancelled'), up: live.filter(a => ['pending', 'confirmed'].includes(a.status)).length,
+    nsRate: att + ns ? Math.round(ns / (att + ns) * 100) : null,
+    newP: Object.values(first).filter(t => t >= s && t < e).length,
+    reviews: inM.filter(a => a.status === 'attended' && (a.email || a.source === 'whatsapp')).length };
+}
+function pReport() {
+  const cur = ymOf(Date.now()), minYm = ymOf(Math.min(...S.appts.map(a => a.start)));
+  const m = monthStats(P.rm), ongoing = P.rm === cur;
+  const prev = monthStats(shiftYm(P.rm, -1));
+  const delta = (a, b) => b ? (a >= b ? `+${a - b}` : `${a - b}`) + ' geçen aya göre' : '';
+  const ch = [['web', 'Web sitesi'], ['whatsapp', 'WhatsApp'], ['panel', 'Telefon']].map(([k, l]) => [l, m.live.filter(a => a.source === k).length]);
+  const chMax = Math.max(1, ...ch.map(x => x[1])), chTot = ch.reduce((t, x) => t + x[1], 0) || 1;
+  const trend = []; for (let i = 5; i >= 0; i--) { const ym = shiftYm(P.rm, -i); trend.push([ym, monthStats(ym).live.length]); }
+  const tMax = Math.max(1, ...trend.map(x => x[1]));
+  const docs = S.doctors.map(d => { const L = m.inM.filter(a => a.doctorId === d.id); const at2 = L.filter(a => a.status === 'attended').length, ns2 = L.filter(a => a.status === 'no_show').length;
+    return `<tr><td><span class="ddot" style="background:${d.color}"></span> ${esc(docLabel(d))}</td><td>${L.filter(a => a.status !== 'cancelled').length}</td><td>${at2}</td><td>${ns2}</td><td>${at2 + ns2 ? Math.round(ns2 / (at2 + ns2) * 100) + '%' : '—'}</td></tr>`; }).join('');
+  return `<div class="p-head"><h2>Aylık rapor · ${ymLabel(P.rm)}</h2>
+      <button class="nav-btn" data-act="rmMove" data-d="-1" aria-label="Önceki ay" ${P.rm <= minYm ? 'disabled' : ''}>‹</button>
+      <button class="ghost" data-act="rmNow">Bu ay</button>
+      <button class="nav-btn" data-act="rmMove" data-d="1" aria-label="Sonraki ay" ${P.rm >= cur ? 'disabled' : ''}>›</button></div>
+    <p class="explain">${ongoing ? `Ay devam ediyor: ${m.up} randevu henüz gerçekleşmedi. ` : ''}Gelmeme oranı, gerçekleşmesi gereken randevular içinde gelinmeyenlerin payıdır.</p>
+    <div class="kpis">
+      <div class="kpi"><small>Randevu</small><b>${m.live.length}</b><span>${delta(m.live.length, prev.live.length)}</span></div>
+      <div class="kpi"><small>Gelen hasta</small><b>${m.att}</b><span>${m.cx} iptal</span></div>
+      <div class="kpi"><small>Gelmeme oranı</small><b>${m.nsRate === null ? '—' : m.nsRate + '%'}</b><span>${m.ns} randevuya gelinmedi</span></div>
+      <div class="kpi"><small>Yeni hasta</small><b>${m.newP}</b><span>ilk kez randevu alan</span></div>
+      <div class="kpi"><small>Yorum isteği</small><b>${m.reviews}</b><span>gelen hastaya gönderildi</span></div>
+    </div>
+    <div class="rgrid">
+      <div class="rbox"><h3>Randevular nereden geldi?</h3>
+        ${ch.map(([l, n]) => `<div class="hbar"><span>${l}</span><span class="tr" title="${l}: ${n} randevu"><i style="width:${n / chMax * 100}%"></i></span><b>${n} · ${Math.round(n / chTot * 100)}%</b></div>`).join('')}
+        <p class="hint" style="margin:8px 0 0">İptal edilen randevular hariç.</p></div>
+      <div class="rbox"><h3>Son 6 ay · randevu sayısı</h3>
+        <div class="trend">${trend.map(([ym, n]) => `<div class="c ${ym === cur ? 'cur' : ''}" title="${ymLabel(ym)}: ${n} randevu${ym === cur ? ' (ay devam ediyor)' : ''}"><b>${n}</b><i style="height:${Math.max(2, n / tMax * 120)}px"></i><small>${MONTHS[Number(ym.slice(5)) - 1].slice(0, 3)}</small></div>`).join('')}</div>
+        <p class="hint" style="margin:8px 0 0">Açık renkli sütun: ay devam ediyor.</p></div>
+    </div>
+    <div class="rbox" style="margin-top:14px"><h3>Hekim bazında</h3>
+      <table class="ptable"><thead><tr><th>Hekim</th><th>Randevu</th><th>Geldi</th><th>Gelmedi</th><th>Gelmeme</th></tr></thead><tbody>${docs}</tbody></table></div>`;
+}
+
+/* ------------------------------------------- WhatsApp asistanı (demo)
+   Gerçek kurulumda kliniğin WhatsApp Business numarasına gelen mesajları aynı akışla yanıtlar
+   ve randevuyu aynı kurallarla (book_appointment) oluşturur. */
+const W = { open: false, started: false, msgs: [], opts: [], expect: null, ctx: {}, typing: false, kvkkOk: null, phone: '+905301112233' };
+const WQ = []; let wBusy = false;
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function isOpenNow(d = new Date()) {
+  const dow = isoDow(d), h = d.getHours() + d.getMinutes() / 60;
+  if (h >= 12.5 && h < 13.5 && dow <= 5) return false;
+  return dow <= 5 ? h >= 9 && h < 18 : dow === 6 ? h >= 10 && h < 14 : false;
+}
+function waSay(text, opts = [], expect = null) { WQ.push({ text, opts, expect }); W.opts = []; if (!wBusy) waPump(); }
+function waPump() {
+  const n = WQ.shift(); if (!n) { wBusy = false; return; }
+  wBusy = true; W.typing = true; renderWa();
+  setTimeout(() => {
+    W.typing = false; W.msgs.push({ from: 'bot', text: n.text, t: Date.now() });
+    if (!WQ.length) { W.opts = n.opts; W.expect = n.expect; }
+    renderWa(); waPump();
+  }, reduceMotion ? 120 : 650);
+}
+const knownName = () => { const L = S.appts.filter(a => a.phone === W.phone).sort((a, b) => b.createdAt - a.createdAt); return L.length ? L[0].name : null; };
+const MENU = () => [['Randevu al', waDoc], ['Randevularım', waMine], ['Adres ve yol tarifi', waAddr], ['Çalışma saatleri', waHours], ['Sekreterle görüşmek istiyorum', waHuman]];
+function waStart() {
+  W.started = true;
+  const n = knownName();
+  waSay(`Merhaba${n ? ' ' + n.split(' ')[0] : ''}! Ben ${S.clinic.name} randevu asistanıyım.${isOpenNow() ? '' : '\nŞu an mesai dışındayız ama randevunuzu hemen oluşturabilirim.'}\nSize nasıl yardımcı olabilirim?`, MENU());
+}
+function waMenu(prefix) { waSay(typeof prefix === 'string' ? prefix : 'Size başka nasıl yardımcı olabilirim?', MENU()); }
+function waDoc() {
+  W.ctx = {};
+  waSay('Hangi hekimimizden randevu almak istersiniz?', S.doctors.map(d => [`${docLabel(d)} · ${d.spec}`, () => waDays(d.id)]).concat([['Fark etmez, en yakın saat', waAny]]));
+}
+function waAny() {
+  let best = null;
+  for (const d of S.doctors) { const f = nextFree(d); if (f && (!best || f < best.s)) best = { d, s: f }; }
+  if (!best) return waSay('Önümüzdeki günlerde boş saat görünmüyor. Sekreterimiz size uygun bir saat bulsun mu?', [['Evet, beni arasın', waHuman], ['Ana menü', waMenu]]);
+  W.ctx.doc = best.d.id;
+  const rel = relDay(ymd(new Date(best.s)));
+  waSay(`En yakın boş saat: *${rel ? rel + ' ' : fmtDay(best.s) + ', '}${hm(best.s)}*, ${docLabel(best.d)}. Bu saati ayırayım mı?`,
+    [['Evet, bu saat olsun', () => { W.ctx.slot = best.s; waName(); }], ['Başka bir gün seçeyim', () => waDays(best.d.id)]]);
+}
+function waDays(docId, from = 0) {
+  W.ctx.doc = docId; const doc = docById(docId), days = [];
+  for (let i = 0; i < 21; i++) { const ds = ymd(addDays(new Date(), i)); const n = daySlots(doc, ds).filter(x => x.state === 'free').length; if (n) days.push([ds, n]); }
+  if (!days.length) return waSay(`${docLabel(doc)} için önümüzdeki 3 hafta dolu görünüyor.`, [['Başka hekim', waDoc], ['Sekreter beni arasın', waHuman]]);
+  const page = days.slice(from, from + 5);
+  const opts = page.map(([ds, n]) => { const d = at(ds, '12:00'), rel = relDay(ds);
+    return [`${rel ? rel + ', ' : ''}${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)} ${DAYS_S[isoDow(d) - 1]} · ${n} boş saat`, () => waSlots(ds)]; });
+  if (days.length > from + 5) opts.push(['Diğer günler', () => waDays(docId, from + 5)]);
+  opts.push(['Hekimi değiştir', waDoc]);
+  waSay(`${docLabel(doc)} için uygun günler:`, opts);
+}
+function waSlots(ds) {
+  const doc = docById(W.ctx.doc), free = daySlots(doc, ds).filter(x => x.state === 'free');
+  if (!free.length) return waDays(doc.id);
+  W.ctx.ds = ds;
+  waSay(`${fmtDay(at(ds, '12:00').getTime())} için boş saatler. Birini seçin ya da saati yazın (ör. ${hm(free[0].s)}):`,
+    free.slice(0, 12).map(x => [hm(x.s), () => { W.ctx.slot = x.s; waName(); }]).concat([['Başka gün', () => waDays(doc.id)]]), 'slot');
+}
+function waName() {
+  const n = knownName();
+  if (n) waSay(`Randevuyu *${n}* adına oluşturayım mı?`, [['Evet', () => { W.ctx.name = n; waKvkk(); }], ['Başka bir isim yazacağım', () => waSay('Randevu kimin adına olsun? Ad ve soyadını yazar mısınız?', [], 'name')]]);
+  else waSay('Randevu için adınızı ve soyadınızı yazar mısınız?', [], 'name');
+}
+function waKvkk() {
+  if (W.kvkkOk) return waConfirm();
+  waSay('Randevunuz için adınızı ve telefon numaranızı işleyeceğiz; sağlık bilgisi istemiyoruz. Ayrıntılar: {KVKK}. Onaylıyor musunuz?',
+    [['Onaylıyorum', () => { W.kvkkOk = Date.now(); waConfirm(); }], ['Vazgeç', () => waMenu('Peki, randevu oluşturmadım. Başka bir konuda yardımcı olabilir miyim?')]]);
+}
+function waConfirm() {
+  const doc = docById(W.ctx.doc);
+  waSay(`Kontrol edelim:\n*${docLabel(doc)}*\n${fmtLong(W.ctx.slot)}\nAd soyad: ${W.ctx.name}\nOnaylıyor musunuz?`,
+    [['Onayla', waBook], ['Saati değiştir', () => waDays(doc.id)], ['Vazgeç', () => waMenu('Randevu oluşturmadım. Başka bir konuda yardımcı olabilir miyim?')]]);
+}
+function waBook() {
+  const r = book({ doctorId: W.ctx.doc, start: W.ctx.slot, name: W.ctx.name, phone: W.phone, email: null, note: null, kvkk: !!W.kvkkOk, source: 'whatsapp' });
+  if (r.err === 'SLOT_TAKEN' || r.err === 'SLOT_UNAVAILABLE') { waSay('Bu saat az önce doldu. Başka bir saat seçelim.'); return waSlots(W.ctx.ds || ymd(new Date(W.ctx.slot))); }
+  if (r.err === 'TOO_MANY_BOOKINGS') return waSay('Bu numarayla zaten 2 yaklaşan randevunuz var. Değişiklik için randevularınıza bakabilir ya da sekreterimize bağlanabilirsiniz.', [['Randevularım', waMine], ['Sekreterle görüş', waHuman]]);
+  if (r.err === 'INVALID_NAME') return waSay('Lütfen ad ve soyadınızı yazın.', [], 'name');
+  if (r.err) return waSay('Bir sorun oldu, randevuyu oluşturamadım. Sekreterimiz size dönsün mü?', [['Evet', waHuman], ['Ana menü', waMenu]]);
+  const a = r.a, doc = docById(a.doctorId); W.ctx = {};
+  waSay(`${a.status === 'pending' ? 'Randevu talebinizi aldım; klinik onayladığında buradan haber vereceğim.' : 'Randevunuz oluşturuldu.'}\n*${docLabel(doc)}*, ${fmtLong(a.start)}\nAdres: ${S.clinic.address}\nRandevudan ${S.clinic.reminderHours} saat önce buradan hatırlatma göndereceğim. Gelemeyecekseniz "iptal" yazmanız yeterli.`, [['Ana menü', waMenu]]);
+  renderPanel();
+  toast(`Yeni WhatsApp randevusu: ${shortName(a.name)} · ${fmtLong(a.start)}`, 'Panelde göster', () => showInPanel(a));
+  markPanelDot();
+}
+function waMine() {
+  const up = S.appts.filter(a => a.phone === W.phone && ['pending', 'confirmed'].includes(a.status) && a.start > Date.now()).sort((a, b) => a.start - b.start);
+  if (!up.length) return waSay('Bu numarayla kayıtlı yaklaşan randevunuz yok.', [['Randevu al', waDoc], ['Ana menü', waMenu]]);
+  waSay(`Yaklaşan randevularınız:\n${up.map(a => `• ${fmtLong(a.start)} · ${docLabel(docById(a.doctorId))}`).join('\n')}`,
+    up.map(a => [`İptal et: ${fmtShort(a.start)} ${hm(a.start)}`, () => waCancelAsk(a.id)]).concat([['Ana menü', waMenu]]));
+}
+function waCancelAsk(id) {
+  const a = S.appts.find(x => x.id === id);
+  waSay(`${fmtLong(a.start)} randevunuzu iptal edeyim mi?`, [['Evet, iptal et', () => {
+    setStatus(a.id, 'cancelled', 'patient'); renderPanel();
+    waSay('Randevunuz iptal edildi; bu saat başka hastalara açıldı. Yeni bir randevu ister misiniz?', [['Yeni randevu', waDoc], ['Hayır, teşekkürler', waBye]]);
+  }], ['Vazgeç', () => waMenu('Randevunuz duruyor. Başka bir konuda yardımcı olabilir miyim?')]]);
+}
+function waAddr() { waSay(`Adresimiz: ${S.clinic.address}\nYol tarifi: {MAP}`, [['Randevu al', waDoc], ['Ana menü', waMenu]]); }
+function waHours() {
+  waSay(`Pazartesi – Cuma: 09:00 – 18:00 (öğle arası 12:30 – 13:30)\nCumartesi: 10:00 – 14:00\nPazar: kapalı\nŞu an ${isOpenNow() ? 'açığız' : 'kapalıyız'}. Online randevuyu buradan günün her saatinde alabilirsiniz.`, [['Randevu al', waDoc], ['Ana menü', waMenu]]);
+}
+function waPrice() { waSay('Ücretler tedaviye göre değişiyor; muayeneden sonra hekiminiz ayrıntılı bilgi verir. İsterseniz sekreterimiz sizi arayıp bilgi versin.', [['Sekreter arasın', waHuman], ['Randevu al', waDoc]]); }
+function waPain() { waSay(`Geçmiş olsun. Bu durumda en kısa sürede muayene olmanızı öneririz; en yakın boş saati gösterebilirim. Çok şiddetli ağrı, yüzde şişlik ya da ateş varsa lütfen kliniği hemen arayın: ${S.clinic.phone}`, [['En yakın saat', waAny], ['Sekreter beni arasın', waHuman]]); }
+function waBye() { waSay('Rica ederiz, sağlıklı günler dileriz.', [['Ana menü', waMenu]]); }
+function waHuman() {
+  S.handoffs = S.handoffs || [];
+  if (!S.handoffs.some(h => h.phone === W.phone && !h.done)) {
+    S.handoffs.push({ id: uid(), phone: W.phone, name: knownName() || 'WhatsApp kullanıcısı', at: Date.now(), done: false }); save();
+    toast(`WhatsApp: ${fmtPhone(W.phone)} geri dönüş istiyor`, 'Panelde göster', () => { P.tab = 'patients'; P.pf = 'recall'; setMode('panel'); window.scrollTo({ top: 0 }); });
+    markPanelDot(); if (document.body.dataset.mode === 'panel') renderPanel();
+  }
+  waSay(`Talebinizi sekreterimize ilettim. ${isOpenNow() ? 'Kısa süre içinde' : 'Mesai saatlerinde'} bu numaradan size dönüş yapılacak.`, [['Ana menü', waMenu]]);
+}
+function waText(text) {
+  const s = text.toLocaleLowerCase('tr').trim();
+  const exp = W.expect; W.expect = null;
+  if (exp === 'name') {
+    const n = text.trim().replace(/\s+/g, ' ');
+    if (n.length < 2 || n.length > 80 || !/\p{L}/u.test(n) || /\d/.test(n)) return waSay('Lütfen ad ve soyadınızı yazın.', [], 'name');
+    W.ctx.name = n; return waKvkk();
+  }
+  if (exp === 'slot') {
+    const m = s.match(/\b(\d{1,2})[:.](\d{2})\b/);
+    if (m) {
+      const want = `${pad(Number(m[1]))}:${m[2]}`;
+      const f = daySlots(docById(W.ctx.doc), W.ctx.ds).find(x => x.state === 'free' && hm(x.s) === want);
+      if (f) { W.ctx.slot = f.s; return waName(); }
+      waSay(`${want} dolu ya da çalışma saati dışında.`);
+      return waSlots(W.ctx.ds);
+    }
+  }
+  if (/^(menü|menu|ana menü|başa dön)/.test(s)) return waMenu();
+  if (/iptal|gelemeyece|ertele/.test(s)) return waMine();
+  if (/randevu|muayene|kontrol|müsait|boş saat|yer var/.test(s)) return waDoc();
+  if (/ağrı|ağrıyor|sızı|şiş|kanama|kanıyor|acil|kırıl|apse/.test(s)) return waPain();
+  if (/fiyat|ücret|kaç para|ne kadar tut|taksit/.test(s)) return waPrice();
+  if (/adres|nerede|nerdesiniz|konum|yol tarifi|harita|otopark/.test(s)) return waAddr();
+  if (/saat|açık mı|kaçta|kaça kadar|pazar|cumartesi|mesai/.test(s)) return waHours();
+  if (/sekreter|yetkili|beni ara|arayın|arayabilir|görüşmek|insanla/.test(s)) return waHuman();
+  if (/teşekkür|sağ ?ol|eyvallah|tamamdır/.test(s)) return waBye();
+  if (/^(merhaba|selam|iyi günler|günaydın|iyi akşamlar|mrb|slm)/.test(s)) return waMenu('Merhaba! Size nasıl yardımcı olabilirim?');
+  waSay('Bunu tam anlayamadım. Aşağıdakilerden birini seçebilir ya da sekreterimize bağlanabilirsiniz.', MENU());
+}
+function waUser(text) { W.msgs.push({ from: 'me', text, t: Date.now() }); W.opts = []; renderWa(); }
+const SEND_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z"/></svg>';
+function renderWa() {
+  const box = $('#wa-box'), fab = $('#wa-fab'); if (!box) return;
+  box.hidden = !W.open; fab.hidden = W.open;
+  if (!W.open) { box.innerHTML = ''; return; }
+  const inp = $('#wa-in'), had = inp && document.activeElement === inp, val = inp ? inp.value : '';
+  const map = `https://maps.google.com/?q=${encodeURIComponent(S.clinic.address)}`;
+  const fmt = t => esc(t).replace(/\*([^*\n]+)\*/g, '<b>$1</b>').replace(/\n/g, '<br>')
+    .replace('{KVKK}', '<button class="link" data-act="kvkk">aydınlatma metni</button>')
+    .replace('{MAP}', `<a class="link" href="${esc(map)}" target="_blank" rel="noopener" data-act="noop">Google Haritalar'da aç</a>`);
+  box.innerHTML = `
+    <div class="wa-head"><span class="wa-av">${TOOTH}</span><div><b>${esc(S.clinic.name)}</b><small>${isOpenNow() ? 'Çevrimiçi' : 'Mesai dışı'} · otomatik asistan</small></div>
+      <button class="icon-btn" data-act="waClose" aria-label="Sohbeti kapat">×</button></div>
+    <div class="wa-demo">Demo: mesajlar bu sayfada kalır. Sizin numaranız: <b class="tnum">${fmtPhone(W.phone)}</b></div>
+    <div class="wa-msgs" id="wa-msgs" aria-live="polite">${W.msgs.map(m => `<div class="wa-m ${m.from}"><span>${fmt(m.text)}</span><small>${hm(m.t)}</small></div>`).join('')}
+      ${W.typing ? '<div class="wa-m bot typing" aria-label="Yazıyor"><span><i></i><i></i><i></i></span></div>' : ''}</div>
+    ${W.opts.length ? `<div class="wa-opts">${W.opts.map((o, i) => `<button data-act="waOpt" data-i="${i}">${esc(o[0])}</button>`).join('')}</div>` : ''}
+    <form class="wa-form" id="wa-form"><input id="wa-in" autocomplete="off" maxlength="300" placeholder="${W.expect === 'name' ? 'Adınızı ve soyadınızı yazın' : 'Mesaj yazın'}" aria-label="Mesaj">
+      <button class="wa-send" type="submit" aria-label="Gönder">${SEND_SVG}</button></form>`;
+  const msgs = $('#wa-msgs'); msgs.scrollTop = msgs.scrollHeight;
+  const ni = $('#wa-in'); ni.value = val;
+  if (had || W.expect === 'name') ni.focus({ preventScroll: true });
+}
+function waReset() { W.open = false; W.started = false; W.msgs = []; W.opts = []; W.expect = null; W.ctx = {}; W.kvkkOk = null; WQ.length = 0; renderWa(); }
+
+/* ---------------------------------------------------------------- panel */
+const P = { tab: 'day', day: ymd(new Date()), week: ymd(mondayOf(new Date())), docFilter: 'all', drawer: null, na: null, flashId: null, pq: '', pf: 'all', rm: ymOf(Date.now()) };
+const TABS = [['day','Günlük'],['week','Haftalık takvim'],['patients','Hastalar'],['report','Aylık rapor'],['doctors','Hekimler'],['off','İzinler'],['mail','Bildirimler'],['settings','Görünüm ve ayarlar']];
+
+function renderPanel() {
+  const pending = S.appts.filter(a => a.status === 'pending').length;
+  const toCall = P.tab === 'patients' ? 0 : patients().filter(p => p.why && !p.called).length;
+  $('#panel').innerHTML = `
+    <div class="p-top">
+      <div class="p-id"><span class="mark">${TOOTH}</span>
+        <div><b id="p-clinic">${esc(S.clinic.name)}</b><small>Randevu paneli · sekreter@${esc(S.clinic.domain)}</small></div></div>
+      <button class="btn" data-act="newAppt">+ Telefonla gelen randevu</button>
+    </div>
+    <nav class="p-nav" aria-label="Panel">${TABS.map(([k, l]) => `<button data-act="tab" data-tab="${k}" ${P.tab === k ? 'aria-current="page"' : ''}>${l}${k === 'day' && pending ? `<span class="cnt">${pending}</span>` : ''}${k === 'patients' && toCall ? `<span class="cnt">${toCall}</span>` : ''}</button>`).join('')}</nav>
+    <div class="p-body">${({ day: pDay, week: pWeek, patients: pPatients, report: pReport, doctors: pDoctors, off: pOff, mail: pMail, settings: pSettings })[P.tab]()}</div>`;
+  if (P.flashId) { const r = document.querySelector(`[data-row="${P.flashId}"]`); if (r) { r.classList.add('flash'); r.scrollIntoView({ block: 'nearest' }); } P.flashId = null; }
+}
+const pill = s => `<span class="pill st-${s}">${STATUS[s]}</span>`;
+function pDay() {
+  const list = S.appts.filter(a => ymd(new Date(a.start)) === P.day).sort((a, b) => a.start - b.start || a.doctorId.localeCompare(b.doctorId));
+  const cnt = s => list.filter(a => a.status === s).length;
+  const rel = relDay(P.day);
+  const now = Date.now();
+  const rows = list.map(a => {
+    const d = docById(a.doctorId);
+    const act = ['pending','confirmed'].includes(a.status)
+      ? `${a.status === 'pending' ? `<button class="mini pri" data-act="status" data-id="${a.id}" data-s="confirmed">Onayla</button>` : ''}
+         <button class="mini ok" data-act="status" data-id="${a.id}" data-s="attended">Geldi</button>
+         <button class="mini warn" data-act="status" data-id="${a.id}" data-s="no_show">Gelmedi</button>` : '';
+    return `<div class="row ${a.status === 'cancelled' ? 'is-cancelled' : ''} ${a.start <= now && a.end > now ? 'now' : ''}" data-act="open" data-id="${a.id}" data-row="${a.id}">
+      <div class="r-time"><b>${hm(a.start)}</b><small>${hm(a.end)}</small></div>
+      <div><div class="r-name">${esc(a.name)} <span class="src">${SRC[a.source] || 'Telefon'}</span></div>
+        <div class="r-sub"><span class="ddot" style="background:${d.color}"></span>${esc(docLabel(d))} · <span class="tnum">${fmtPhone(a.phone)}</span>${a.note ? ` · “${esc(a.note)}”` : ''}</div></div>
+      <div class="r-right">${pill(a.status)}${act}</div></div>`;
+  }).join('');
+  return `<div class="p-head">
+      <h2>${rel ? rel + ', ' : ''}${fmtDay(at(P.day, '12:00').getTime())}</h2>
+      <button class="nav-btn" data-act="dayMove" data-d="-1" aria-label="Önceki gün">‹</button>
+      <button class="ghost" data-act="dayToday">Bugün</button>
+      <button class="nav-btn" data-act="dayMove" data-d="1" aria-label="Sonraki gün">›</button>
+    </div>
+    <div class="stats">
+      <span class="stat"><b>${list.filter(a => a.status !== 'cancelled').length}</b> randevu</span>
+      <span class="stat"><b>${cnt('confirmed') + cnt('pending')}</b> bekleniyor</span>
+      <span class="stat"><b>${cnt('attended')}</b> geldi</span>
+      <span class="stat"><b>${cnt('no_show')}</b> gelmedi</span>
+      <span class="stat"><b>${cnt('cancelled')}</b> iptal</span>
+    </div>
+    ${list.length ? `<div class="list">${rows}</div>` : `<div class="empty">Bu gün için randevu yok.</div>`}`;
+}
+function pWeek() {
+  const start = at(P.week, '00:00');
+  const chips = `<div class="chips"><button class="chip" data-act="docFilter" data-doc="all" aria-pressed="${P.docFilter === 'all'}">Tüm hekimler</button>${S.doctors.map(d =>
+    `<button class="chip" data-act="docFilter" data-doc="${d.id}" aria-pressed="${P.docFilter === d.id}"><span class="ddot" style="background:${d.color}"></span>${esc(d.title + ' ' + d.name.split(' ')[0])}</button>`).join('')}</div>`;
+  let cols = '';
+  for (let i = 0; i < 6; i++) {
+    const d = addDays(start, i), ds = ymd(d);
+    const items = S.appts.filter(a => ymd(new Date(a.start)) === ds && (P.docFilter === 'all' || a.doctorId === P.docFilter)).sort((a, b) => a.start - b.start);
+    const offs = S.timeOff.filter(o => ymd(new Date(o.start)) === ds && (P.docFilter === 'all' || !o.doctorId || o.doctorId === P.docFilter));
+    cols += `<div class="wcol ${ds === ymd(new Date()) ? 'today' : ''}">
+      <div class="wh"><b>${DAYS_S[i]} ${d.getDate()}</b><small>${items.filter(a => a.status !== 'cancelled').length}</small></div>
+      <div class="wbody">
+        ${offs.map(o => `<div class="wi off"><span class="t">${hm(o.start)}–${hm(o.end)}</span><span class="n">${o.doctorId ? esc(docById(o.doctorId).name.split(' ')[0]) : 'Klinik'} · ${esc(o.reason || 'İzin')}</span></div>`).join('')}
+        ${items.map(a => { const doc = docById(a.doctorId); return `<button class="wi ${a.status === 'cancelled' ? 'cx' : ''} st-${a.status}-b" data-act="open" data-id="${a.id}">
+          <span class="t"><span class="ddot" style="background:${doc.color}"></span>${hm(a.start)}</span><span class="n">${esc(shortName(a.name))}</span></button>`; }).join('')}
+      </div></div>`;
+  }
+  const end = addDays(start, 5);
+  return `<div class="p-head"><h2>${start.getDate()} ${MONTHS[start.getMonth()]} – ${end.getDate()} ${MONTHS[end.getMonth()]}</h2>
+      <button class="nav-btn" data-act="weekMove" data-d="-1" aria-label="Önceki hafta">‹</button>
+      <button class="ghost" data-act="weekToday">Bu hafta</button>
+      <button class="nav-btn" data-act="weekMove" data-d="1" aria-label="Sonraki hafta">›</button></div>
+    ${chips}<div class="week-scroll"><div class="week">${cols}</div></div>`;
+}
+function hoursText(h) {
+  const r = x => (x || []).map(([a, b]) => `${a}–${b}`).join(', ');
+  return `<dt>Pzt–Cum</dt><dd>${r(h[1])}</dd><dt>Cumartesi</dt><dd>${h[6] ? r(h[6]) : 'Çalışmıyor'}</dd><dt>Pazar</dt><dd>Kapalı</dd>`;
+}
+function pDoctors() {
+  return `<div class="p-head"><h2>Hekimler ve çalışma saatleri</h2></div>
+    <p class="explain">Randevu süresini veya cumartesi çalışmasını değiştirdiğinizde web sitesindeki boş saatler anında güncellenir.</p>
+    <div class="cards">${S.doctors.map(d => {
+      const upcoming = S.appts.filter(a => a.doctorId === d.id && a.start > Date.now() && a.status !== 'cancelled').length;
+      return `<div class="card">
+        <div class="card-h"><span class="av sm" style="background:${d.color}">${initials(d.name)}</span><div><b>${esc(docLabel(d))}</b><small>${esc(d.spec)}</small></div></div>
+        <dl class="kv">${hoursText(d.hours)}<dt>Gelecek randevu</dt><dd>${upcoming}</dd></dl>
+        <div class="inline"><label for="slot-${d.id}">Randevu süresi</label>
+          <select id="slot-${d.id}" data-change="slot" data-doc="${d.id}">${[15,20,30,45,60].map(m => `<option value="${m}" ${d.slot === m ? 'selected' : ''}>${m} dk</option>`).join('')}</select></div>
+        <label class="inline"><input type="checkbox" id="sat-${d.id}" data-change="sat" data-doc="${d.id}" ${d.hours[6] ? 'checked' : ''}> Cumartesi 10:00–14:00 çalışır</label>
+      </div>`; }).join('')}</div>`;
+}
+function pOff() {
+  const list = S.timeOff.filter(o => o.end > Date.now()).sort((a, b) => a.start - b.start);
+  const tmr = ymd(addDays(new Date(), 1));
+  return `<div class="p-head"><h2>İzinler ve kapalı günler</h2></div>
+    <p class="explain">Girdiğiniz saatler web sitesinde anında kapanır. Mevcut randevular silinmez; gerekirse hastayı arayıp taşıyın.</p>
+    <form class="form-grid" id="off-form">
+      <div class="field"><label for="off-doc">Kim</label><select id="off-doc"><option value="">Tüm klinik</option>${S.doctors.map(d => `<option value="${d.id}">${esc(docLabel(d))}</option>`).join('')}</select></div>
+      <div class="field"><label for="off-date">Tarih</label><input id="off-date" type="date" value="${tmr}" min="${ymd(new Date())}"></div>
+      <div class="field"><label for="off-span">Süre</label><select id="off-span"><option value="09:00-18:00">Tüm gün</option><option value="09:00-13:00">Sabah (09:00–13:00)</option><option value="13:00-18:00">Öğleden sonra (13:00–18:00)</option></select></div>
+      <div class="field"><label for="off-reason">Açıklama</label><input id="off-reason" placeholder="Ör. izin, kongre, bayram"></div>
+      <button class="btn" type="submit">Kapat</button>
+    </form>
+    ${list.length ? `<div class="list">${list.map(o => {
+      const affected = S.appts.filter(a => a.status !== 'cancelled' && (!o.doctorId || a.doctorId === o.doctorId) && a.start < o.end && a.end > o.start).length;
+      return `<div class="row" style="cursor:default"><div class="r-time"><b>${new Date(o.start).getDate()} ${MONTHS[new Date(o.start).getMonth()].slice(0,3)}</b><small>${hm(o.start)}–${hm(o.end)}</small></div>
+        <div><div class="r-name">${o.doctorId ? esc(docLabel(docById(o.doctorId))) : 'Tüm klinik'}</div><div class="r-sub">${esc(o.reason || 'İzin')}${affected ? ` · <b style="color:var(--warn)">${affected} mevcut randevu bu aralıkta</b>` : ''}</div></div>
+        <div class="r-right"><button class="mini bad" data-act="offDel" data-id="${o.id}">Kaldır</button></div></div>`; }).join('')}</div>`
+      : '<div class="empty">Planlanmış izin yok.</div>'}`;
+}
+const MAILT = { confirm: ['✉', 'Randevu onayı'], reminder: ['⏰', 'Randevu hatırlatma'], review: ['★', 'Google yorum isteği'] };
+function pMail() {
+  const now = Date.now();
+  const list = [...S.mails].sort((a, b) => b.at - a.at).slice(0, 40);
+  const sent = S.mails.filter(m => !m.cancelled && m.at <= now).length, planned = S.mails.filter(m => !m.cancelled && m.at > now).length;
+  return `<div class="p-head"><h2>Bildirimler</h2></div>
+    <p class="explain">WhatsApp'tan randevu alan hastaya mesajlar WhatsApp'tan, web'den alan ve e-posta bırakan hastaya e-postayla gider. Hatırlatma randevudan ${S.clinic.reminderHours} saat önce, Google yorum isteği hasta "Geldi" olarak işaretlendikten 2 saat sonra gönderilir. Bir satıra tıklayarak içeriği görebilirsiniz.</p>
+    <div class="stats"><span class="stat"><b>${sent}</b> gönderildi</span><span class="stat"><b>${planned}</b> planlandı</span></div>
+    <div class="list">${list.map(m => {
+      const a = S.appts.find(x => x.id === m.apptId); if (!a) return '';
+      const [ic0, label] = MAILT[m.type], wa = m.channel === 'wa', ic = wa ? `<span class="wa-ic">${ICON.wa}</span>` : ic0;
+      const st = m.cancelled ? '<span class="pill st-cancelled">Durduruldu</span>' : m.at <= now ? '<span class="pill st-attended">Gönderildi</span>' : '<span class="pill st-pending">Planlandı</span>';
+      return `<button class="mail" data-act="mail" data-id="${m.id}"><span class="ic">${ic}</span><span><b>${wa ? 'WhatsApp · ' : ''}${label} · ${esc(a.name)}</b><small>${wa ? fmtPhone(m.to) : esc(m.to)} · ${m.at <= now ? '' : 'gönderim: '}${fmtLong(m.at)}</small></span>${st}</button>`;
+    }).join('')}</div>`;
+}
+function pSettings() {
+  const c = S.clinic;
+  return `<div class="p-head"><h2>Görünüm ve ayarlar</h2></div>
+    <p class="explain">Her klinik kendi adı, rengi, yazı stili ve alan adıyla yayında olur. Değişiklikler web sitesine anında yansır; "Web sitesi" sekmesinden bakabilirsiniz.</p>
+    <div class="set">
+      <div class="field"><label for="set-name">Klinik adı</label><input id="set-name" data-set="name" value="${esc(c.name)}" maxlength="44"></div>
+      <div class="field"><label for="set-district">Semt</label><input id="set-district" data-set="district" value="${esc(c.district)}" maxlength="24"></div>
+      <div class="field"><label for="set-domain">Alan adı</label><input id="set-domain" data-set="domain" value="${esc(c.domain)}" maxlength="40"><span class="hint">Kurulumda kliniğin kendi alan adı bağlanır.</span></div>
+      <div class="field"><label>Marka rengi</label><div class="swatches">
+        ${PALETTE.map(p => `<button class="sw" style="background:${p}" data-act="color" data-c="${p}" aria-label="Renk ${p}" aria-pressed="${c.color.toLowerCase() === p.toLowerCase()}"></button>`).join('')}
+        <input type="color" id="set-color" data-set="color" value="${esc(c.color)}" aria-label="Özel renk"></div></div>
+      <div class="field"><label>Yazı stili</label><div class="fonts">
+        ${Object.entries(FONTS).map(([k, f]) => `<button class="fontopt" data-act="font" data-f="${k}" aria-pressed="${c.font === k}"><b style="font-family:${f.css}">Aa Diş</b><small>${f.label}</small></button>`).join('')}</div></div>
+      <div class="field"><label for="set-review">Google yorum bağlantısı</label><input id="set-review" data-set="reviewUrl" value="${esc(c.reviewUrl)}"></div>
+      <div class="field"><label for="set-rem">Hatırlatma zamanı</label><select id="set-rem" data-set="reminderHours">
+        ${[12, 24, 48].map(h => `<option value="${h}" ${c.reminderHours === h ? 'selected' : ''}>Randevudan ${h} saat önce</option>`).join('')}</select></div>
+      <label class="check" style="margin:0"><input type="checkbox" id="set-auto" data-set="autoConfirm" ${c.autoConfirm ? 'checked' : ''}>
+        <span><b style="color:var(--ink)">Web randevularını otomatik onayla.</b> Kapalıysa yeni randevular "Onay bekliyor" olarak düşer ve sekreter onaylar.</span></label>
+      <div class="field"><label>Ek paketler</label><div class="addon">
+        <div><b>WhatsApp asistanı ve hatırlatma</b><span style="color:var(--ok)">Açık</span></div>
+        <div><b>Google İşletme Profili</b><span>Giriş Paketi'ne dahil</span></div>
+        <div><b>Sosyal medya ve reklam yönetimi</b><span>Büyüme Paketi</span></div>
+      </div></div>
+    </div>`;
+}
+
+/* ------------------------------------------------------------- mails */
+function mailHtml(m) {
+  const a = S.appts.find(x => x.id === m.apptId), d = docById(a.doctorId), c = S.clinic;
+  const first = a.name.split(' ')[0];
+  const box = `<div class="em-box"><div>Hekim: <b>${esc(docLabel(d))}</b></div><div>Tarih: <b>${fmtDay(a.start)}</b></div><div>Saat: <b>${hm(a.start)}</b></div><div>Adres: <b>${esc(c.address)}</b></div></div>`;
+  const subj = { confirm: `Randevunuz oluşturuldu – ${c.name}`, reminder: `Hatırlatma: ${relDay(ymd(new Date(a.start))) === 'Yarın' ? 'yarın' : fmtDay(a.start)} saat ${hm(a.start)} randevunuz`, review: `Ziyaretiniz için teşekkürler – ${c.name}` }[m.type];
+  let body = '';
+  if (m.type === 'confirm') body = `<h4>Randevunuz oluşturuldu</h4><p>Merhaba ${esc(first)}, randevunuz aşağıdaki bilgilerle kaydedildi.</p>${box}
+      <a class="em-btn alt">Takvimime ekle</a><p style="font-size:12.5px">Gelemeyecekseniz lütfen randevunuzu iptal edin; saatiniz başka bir hastaya açılsın.</p><a class="em-btn alt">Randevuyu iptal et</a>`;
+  if (m.type === 'reminder') body = `<h4>Randevunuzu hatırlatırız</h4><p>Merhaba ${esc(first)}, ${esc(docLabel(d))} ile randevunuz yaklaşıyor.</p>${box}
+      <a class="em-btn">Yol tarifi al</a><a class="em-btn alt">Randevuyu iptal et</a>`;
+  if (m.type === 'review') body = `<h4>Ziyaretiniz için teşekkür ederiz</h4><p>Merhaba ${esc(first)}, bugün kliniğimize geldiğiniz için teşekkür ederiz. Deneyiminizi Google'da paylaşmak isterseniz aşağıdaki bağlantıyı kullanabilirsiniz. Görüşleriniz diğer hastalara yol gösterir.</p>
+      <div class="stars" aria-hidden="true">★★★★★</div><a class="em-btn">Google'da değerlendir</a>`;
+  return `<div class="em"><div class="em-meta"><div>Kimden: <b>${esc(c.name)}</b> &lt;randevu@${esc(c.domain)}&gt;</div><div>Kime: ${esc(m.to)}</div><div>Konu: <b>${esc(subj)}</b></div></div>
+    <div class="em-card"><div class="em-top"><span class="mk">${TOOTH}</span>${esc(c.name)}</div><div class="em-body">${body}</div>
+    <div class="em-foot">${esc(c.address)} · ${esc(c.phone)}<br>Bu e-postayı randevu alırken e-posta adresinizi paylaştığınız için aldınız.</div></div></div>`;
+}
+
+function waMsgHtml(m) {
+  const a = S.appts.find(x => x.id === m.apptId), d = docById(a.doctorId), c = S.clinic, first = a.name.split(' ')[0];
+  const txt = {
+    confirm: `Merhaba ${first}, randevunuz oluşturuldu.\n*${docLabel(d)}*\n${fmtLong(a.start)}\nAdres: ${c.address}\nGelemeyecekseniz "iptal" yazmanız yeterli.`,
+    reminder: `Merhaba ${first}, ${relDay(ymd(new Date(a.start))) === 'Yarın' ? 'yarın' : fmtDay(a.start)} saat ${hm(a.start)}'de ${docLabel(d)} ile randevunuz var.\nGelemeyecekseniz "iptal" yazmanız yeterli; saatiniz başka bir hastaya açılır.`,
+    review: `Merhaba ${first}, bugün bizi tercih ettiğiniz için teşekkür ederiz. Deneyiminizi Google'da paylaşmak isterseniz: ${c.reviewUrl}`
+  }[m.type];
+  return `<div class="em"><div class="em-meta"><div>Kanal: <b>WhatsApp</b> · ${esc(c.name)}</div><div>Kime: <span class="tnum">${fmtPhone(m.to)}</span></div></div>
+    <div class="wa-prev"><div class="wa-m bot"><span>${esc(txt).replace(/\*([^*\n]+)\*/g, '<b>$1</b>').replace(/\n/g, '<br>')}</span><small>${hm(m.at)}</small></div></div>
+    <p class="hint" style="margin:8px 0 0">WhatsApp, işletmelerin ilk mesajlarını önceden onaylanmış şablonlarla gönderir; metin kurulumda kliniğinize göre düzenlenir.</p></div>`;
+}
+
+/* ------------------------------------------------------------- drawer */
+function openDrawer(kind, id) {
+  P.drawer = { kind, id };
+  if (kind === 'new') P.na = { doc: S.doctors[0].id, date: P.tab === 'day' && P.day >= ymd(new Date()) ? P.day : ymd(new Date()), slot: '', name: '', phone: '', note: '', err: null };
+  renderDrawer();
+}
+function closeDrawer() { P.drawer = null; P.na = null; renderDrawer(); }
+function renderDrawer() {
+  const root = $('#drawer-root');
+  if (!P.drawer) { root.innerHTML = ''; return; }
+  let title = '', body = '';
+  if (P.drawer.kind === 'appt') {
+    const a = S.appts.find(x => x.id === P.drawer.id); const d = docById(a.doctorId);
+    title = 'Randevu detayı';
+    const can = ['pending','confirmed'].includes(a.status);
+    body = `<div><div style="font-size:20px;font-weight:800">${esc(a.name)}</div><div style="margin-top:4px">${pill(a.status)}</div></div>
+      <div class="sum">
+        <div><small>Hekim</small><b>${esc(docLabel(d))}</b></div>
+        <div><small>Tarih</small><b>${fmtDay(a.start)}</b></div>
+        <div><small>Saat</small><b class="tnum">${hm(a.start)} – ${hm(a.end)}</b></div>
+        <div><small>E-posta</small><b>${a.email ? esc(a.email) : '—'}</b></div>
+        <div><small>Not</small><b>${a.note ? esc(a.note) : '—'}</b></div>
+        <div><small>Kaynak</small><b>${SRC_LONG[a.source] || 'Telefon (panel)'}</b></div>
+        <div><small>KVKK onayı</small><b>${a.kvkkAt ? fmtLong(a.kvkkAt) + (a.source === 'whatsapp' ? ' (WhatsApp)' : '') : 'Sözlü (telefon)'}</b></div>
+      </div>
+      <div><small style="color:var(--ink-3);font-weight:600">Telefon</small>
+        <div class="copy"><code>${fmtPhone(a.phone)}</code><button class="mini" data-act="copy" data-v="${fmtPhone(a.phone)}">Kopyala</button>
+        <a class="mini pri" href="https://wa.me/${a.phone.slice(1)}" target="_blank" rel="noopener">WhatsApp</a></div></div>
+      <div><small style="color:var(--ink-3);font-weight:600">Durumu değiştir</small>
+        <div class="btn-row" style="margin-top:6px">
+          ${a.status === 'pending' ? `<button class="mini pri" data-act="status" data-id="${a.id}" data-s="confirmed">Onayla</button>` : ''}
+          <button class="mini ok" data-act="status" data-id="${a.id}" data-s="attended">Geldi</button>
+          <button class="mini warn" data-act="status" data-id="${a.id}" data-s="no_show">Gelmedi</button>
+          ${can ? `<button class="mini bad" data-act="status" data-id="${a.id}" data-s="cancelled">İptal et</button>` : ''}
+          ${!can && a.status !== 'cancelled' ? `<button class="mini" data-act="status" data-id="${a.id}" data-s="confirmed">Geri al</button>` : ''}
+        </div></div>
+      ${a.status === 'attended' && (a.email || a.source === 'whatsapp') ? `<p class="note" style="margin:0">Google yorum isteği bu hastaya "Geldi" işaretinden 2 saat sonra ${a.source === 'whatsapp' ? 'WhatsApp\'tan' : 'e-postayla'} gönderilir.</p>` : ''}
+      <button class="mini" data-act="patient" data-ph="${a.phone}" style="justify-self:start">Hasta kartını aç</button>`;
+  } else if (P.drawer.kind === 'mail') {
+    const m = S.mails.find(x => x.id === P.drawer.id);
+    title = (m.channel === 'wa' ? 'WhatsApp · ' : '') + MAILT[m.type][1];
+    body = m.channel === 'wa' ? waMsgHtml(m) : mailHtml(m);
+  } else if (P.drawer.kind === 'patient') {
+    title = 'Hasta kartı';
+    body = patientHtml(P.drawer.id);
+  } else {
+    const n = P.na; const doc = docById(n.doc);
+    const slots = daySlots(doc, n.date, true).filter(s => s.state === 'free');
+    title = 'Telefonla gelen randevu';
+    body = `<p class="explain" style="margin:0">Hasta aradığında randevuyu buradan girin. Aynı saat web sitesinde de hemen kapanır.</p>
+      ${n.err ? `<div class="err" role="alert">${esc(n.err)}</div>` : ''}
+      <form id="na-form" novalidate>
+      <div class="field"><label for="na-doc">Hekim</label><select id="na-doc" data-na="doc">${S.doctors.map(d => `<option value="${d.id}" ${n.doc === d.id ? 'selected' : ''}>${esc(docLabel(d))}</option>`).join('')}</select></div>
+      <div class="field"><label for="na-date">Tarih</label><input id="na-date" type="date" data-na="date" value="${n.date}" min="${ymd(new Date())}"></div>
+      <div class="field"><label for="na-slot">Saat</label><select id="na-slot" data-na="slot">${slots.length ? `<option value="">Saat seçin</option>` + slots.map(s => `<option value="${s.s}" ${String(n.slot) === String(s.s) ? 'selected' : ''}>${hm(s.s)}</option>`).join('') : '<option value="">Bu gün boş saat yok</option>'}</select></div>
+      <div class="field"><label for="na-name">Hasta adı</label><input id="na-name" data-na="name" value="${esc(n.name)}"></div>
+      <div class="field"><label for="na-phone">Telefon</label><input id="na-phone" type="tel" data-na="phone" placeholder="05xx xxx xx xx" value="${esc(n.phone)}"></div>
+      <div class="field"><label for="na-note">Not <small>(isteğe bağlı)</small></label><input id="na-note" data-na="note" value="${esc(n.note)}"></div>
+      <button class="btn lg full" type="submit">Randevuyu kaydet</button></form>`;
+  }
+  root.innerHTML = `<div class="scrim" data-act="scrim"><aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="dr-head"><b>${esc(title)}</b><button class="icon-btn" data-act="closeDrawer" aria-label="Kapat">×</button></div>
+    <div class="dr-body">${body}</div></aside></div>`;
+}
+
+/* ------------------------------------------------------------ helpers */
+function toast(msg, actionLabel, fn) {
+  const t = document.createElement('div'); t.className = 'toast';
+  t.innerHTML = `<span>${esc(msg)}</span>`;
+  if (actionLabel) { const b = document.createElement('button'); b.textContent = actionLabel; b.onclick = () => { fn(); t.remove(); }; t.appendChild(b); }
+  $('#toasts').appendChild(t);
+  setTimeout(() => t.remove(), 5500);
+}
+function markPanelDot() { if (document.body.dataset.mode === 'site') $('#panel-dot').hidden = false; }
+function store(k, v) { try { localStorage.setItem(KEY + ':' + k, v); } catch (e) {} }
+function recall(k, d) { try { return localStorage.getItem(KEY + ':' + k) || d; } catch (e) { return d; } }
+function setMode(v) {
+  document.body.dataset.mode = v;
+  $('#mode-site').setAttribute('aria-pressed', v === 'site'); $('#mode-panel').setAttribute('aria-pressed', v === 'panel');
+  if (v === 'panel') { $('#panel-dot').hidden = true; renderPanel(); } else renderSite();
+  store('mode', v);
+}
+function setDevice(v) {
+  $('#frame').dataset.device = v;
+  $('#dev-desktop').setAttribute('aria-pressed', v === 'desktop'); $('#dev-mobile').setAttribute('aria-pressed', v === 'mobile');
+  store('device', v);
+}
+function showInPanel(a) { P.tab = 'day'; P.day = ymd(new Date(a.start)); P.flashId = a.id; setMode('panel'); window.scrollTo({ top: 0 }); }
+function applyBrand() {
+  document.documentElement.style.setProperty('--brand', S.clinic.color);
+  document.documentElement.style.setProperty('--s-display', (FONTS[S.clinic.font] || FONTS.modern).css);
+}
+function renderAll() { applyBrand(); renderSite(); renderSheet(); renderPanel(); renderDrawer(); }
+
+/* ------------------------------------------------------------- events */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const act = el.dataset.act;
+  if ((act === 'scrim' || act === 'sheetScrim') && e.target !== el) return;
+  switch (act) {
+    case 'mode': setMode(el.dataset.v); break;
+    case 'device': setDevice(el.dataset.v); break;
+    case 'reset': try { localStorage.removeItem(KEY); } catch (err) {} S = seed(); B = null; P.drawer = null; P.pq = ''; P.pf = 'all'; P.rm = ymOf(Date.now()); waReset(); P.day = ymd(new Date()); P.week = ymd(mondayOf(new Date())); P.tab = 'day'; renderAll(); toast('Demo başlangıç hâline döndü.'); break;
+    case 'scrollTo': { const t = document.getElementById(el.dataset.t); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); break; }
+    // hasta
+    case 'book': openBooking(el.dataset.doc); break;
+    case 'painZone': PM.zone = el.dataset.z; renderPain(); break;
+    case 'painLv': PM.lv = Number(el.dataset.l); renderPain(); break;
+    case 'quick': openBooking(el.dataset.doc); B.slot = Number(el.dataset.s); B.date = ymd(new Date(B.slot)); B.step = 4; renderSheet(); break;
+    case 'close': case 'sheetScrim': closeSheet(); renderSite(); break;
+    case 'back': B.err = null; B.step = Math.max(1, B.step - 1); renderSheet(); break;
+    case 'pickDoc': if (B.doctorId !== el.dataset.doc) { B.date = null; B.slot = null; } B.doctorId = el.dataset.doc; B.step = 2; renderSheet(); break;
+    case 'calMove': B.month = Math.max(0, Math.min(1, B.month + Number(el.dataset.d))); renderSheet(); break;
+    case 'pickDate': if (B.date !== el.dataset.date) B.slot = null; B.date = el.dataset.date; B.err = null; B.step = 3; renderSheet(); break;
+    case 'pickSlot': B.slot = Number(el.dataset.s); B.err = null; B.step = 4; renderSheet(); break;
+    case 'kvkk': if (!B) B = { mode: 'kvkk', from: null }; else { B.from = B.mode; B.mode = 'kvkk'; } renderSheet(); break;
+    case 'kvkkBack': if (B.from) { B.mode = B.from; renderSheet(); } else closeSheet(); break;
+    case 'openCancel': B = { mode: 'cancel', token: el.dataset.token, confirm: false }; renderSheet(); break;
+    case 'cancelAsk': B.confirm = true; renderSheet(); break;
+    case 'cancelNo': B.confirm = false; renderSheet(); break;
+    case 'doCancel': { const a = S.appts.find(x => x.token === B.token); setStatus(a.id, 'cancelled', 'patient'); renderSheet(); renderPanel(); break; }
+    // panel
+    case 'tab': P.tab = el.dataset.tab; renderPanel(); break;
+    case 'dayMove': P.day = ymd(addDays(at(P.day, '12:00'), Number(el.dataset.d))); renderPanel(); break;
+    case 'dayToday': P.day = ymd(new Date()); renderPanel(); break;
+    case 'weekMove': P.week = ymd(addDays(at(P.week, '12:00'), 7 * Number(el.dataset.d))); renderPanel(); break;
+    case 'weekToday': P.week = ymd(mondayOf(new Date())); renderPanel(); break;
+    case 'docFilter': P.docFilter = el.dataset.doc; renderPanel(); break;
+    case 'open': openDrawer('appt', el.dataset.id); break;
+    case 'mail': openDrawer('mail', el.dataset.id); break;
+    case 'newAppt': openDrawer('new'); break;
+    case 'closeDrawer': case 'scrim': closeDrawer(); break;
+    case 'status': {
+      const a = S.appts.find(x => x.id === el.dataset.id);
+      setStatus(a.id, el.dataset.s);
+      P.flashId = a.id;
+      renderPanel(); if (P.drawer) renderDrawer();
+      if (el.dataset.s === 'attended' && a.email) toast(`${shortName(a.name)}: Google yorum isteği 2 saat sonra gönderilecek.`);
+      else if (el.dataset.s === 'cancelled') toast('Randevu iptal edildi, saat web sitesinde yeniden açıldı.');
+      break;
+    }
+    case 'noop': break;
+    case 'pf': P.pf = el.dataset.f; renderPanel(); break;
+    case 'patient': openDrawer('patient', el.dataset.ph); break;
+    case 'called': markCalled(el.dataset.ph); renderPanel(); if (P.drawer) renderDrawer(); toast('Arandı olarak işaretlendi.'); break;
+    case 'newFor': { const p = patients().find(x => x.phone === el.dataset.ph); openDrawer('new'); P.na.name = p ? p.name : ''; P.na.phone = fmtPhone(el.dataset.ph); renderDrawer(); break; }
+    case 'exportCsv': exportCsv(); break;
+    case 'rmMove': P.rm = shiftYm(P.rm, Number(el.dataset.d)); renderPanel(); break;
+    case 'rmNow': P.rm = ymOf(Date.now()); renderPanel(); break;
+    case 'waOpen': W.open = true; if (!W.started) waStart(); renderWa(); { const i = $('#wa-in'); if (i) i.focus({ preventScroll: true }); } break;
+    case 'waClose': W.open = false; renderWa(); $('#wa-fab').focus({ preventScroll: true }); break;
+    case 'waOpt': { const o = W.opts[Number(el.dataset.i)]; if (!o) break; waUser(o[0]); o[1](); break; }
+    case 'offDel': S.timeOff = S.timeOff.filter(o => o.id !== el.dataset.id); save(); renderPanel(); toast('İzin kaldırıldı, saatler yeniden açıldı.'); break;
+    case 'color': S.clinic.color = el.dataset.c; save(); applyBrand(); renderPanel(); break;
+    case 'font': S.clinic.font = el.dataset.f; save(); applyBrand(); renderPanel(); break;
+    case 'copy': {
+      const v = el.dataset.v;
+      const fallback = () => { const c = el.parentElement.querySelector('code'); const r = document.createRange(); r.selectNodeContents(c); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Numara seçildi, kopyalayabilirsiniz.'); };
+      try { navigator.clipboard.writeText(v).then(() => toast('Numara kopyalandı.'), fallback); } catch (err) { fallback(); }
+      break;
+    }
+  }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (B && B.mode === 'book' && t.closest('#bk-form')) { if (t.name === 'kvkk') B.f.kvkk = t.checked; else if (t.name) B.f[t.name] = t.value; }
+  if (t.dataset.set) {
+    const k = t.dataset.set;
+    S.clinic[k] = t.type === 'checkbox' ? t.checked : k === 'reminderHours' ? Number(t.value) : t.value;
+    save(); applyBrand();
+    if (k === 'name') { const pc = $('#p-clinic'); if (pc) pc.textContent = t.value; }
+    if (k === 'color') document.querySelectorAll('.sw').forEach(s => s.setAttribute('aria-pressed', s.dataset.c.toLowerCase() === t.value.toLowerCase()));
+  }
+  if (t.dataset.pq) { P.pq = t.value; const l = $('#pt-list'); if (l) l.innerHTML = ptList(); }
+  if (t.dataset.na && P.na) { P.na[t.dataset.na] = t.value; if (t.dataset.na === 'doc' || t.dataset.na === 'date') { P.na.slot = ''; renderDrawer(); } }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.change === 'slot') { docById(t.dataset.doc).slot = Number(t.value); save(); renderPanel(); toast('Randevu süresi güncellendi. Web sitesindeki saatler yeniden hesaplandı.'); }
+  if (t.dataset.change === 'sat') { const d = docById(t.dataset.doc); if (t.checked) d.hours[6] = [['10:00','14:00']]; else delete d.hours[6]; save(); renderPanel(); }
+  if (t.dataset.set === 'reminderHours' || t.dataset.set === 'autoConfirm') renderPanel();
+});
+// Formlar: claude.ai gibi formu engelleyen gömülü görünümlerde de çalışsın diye
+// gönderim submit olayına bırakılmaz; Enter ve gönder düğmesi doğrudan yakalanır.
+function onFormSubmit(e) {
+  e.preventDefault();
+  if (e.target.id === 'bk-form') {
+    const r = book({ doctorId: B.doctorId, start: B.slot, ...B.f, source: 'web' });
+    if (r.err) {
+      B.err = ERR[r.err];
+      if (r.err === 'SLOT_TAKEN' || r.err === 'SLOT_UNAVAILABLE') { B.slot = null; B.step = 3; }
+      renderSheet(); return;
+    }
+    B = { mode: 'done', apptId: r.a.id };
+    renderSheet(); renderPanel();
+    toast(`Yeni web randevusu: ${shortName(r.a.name)} · ${fmtLong(r.a.start)}`, 'Panelde göster', () => showInPanel(r.a));
+    markPanelDot();
+  }
+  if (e.target.id === 'wa-form') {
+    const i = $('#wa-in'), v = i.value.trim(); if (!v) return;
+    i.value = ''; waUser(v); waText(v); const ni = $('#wa-in'); if (ni) ni.focus({ preventScroll: true }); return;
+  }
+  if (e.target.id === 'off-form') {
+    const ds = $('#off-date').value; if (!ds) return;
+    const [a, b] = $('#off-span').value.split('-');
+    S.timeOff.push({ id: uid(), doctorId: $('#off-doc').value || null, start: at(ds, a).getTime(), end: at(ds, b).getTime(), reason: $('#off-reason').value.trim() });
+    save(); renderPanel(); toast('Kapatıldı. Bu saatler web sitesinde artık seçilemez.');
+  }
+  if (e.target.id === 'na-form') {
+    const n = P.na;
+    if (!n.slot) { n.err = 'Lütfen bir saat seçin.'; renderDrawer(); return; }
+    const r = book({ doctorId: n.doc, start: Number(n.slot), name: n.name, phone: n.phone, note: n.note, source: 'panel' });
+    if (r.err) { n.err = ERR[r.err]; renderDrawer(); return; }
+    closeDrawer(); P.tab = 'day'; P.day = ymd(new Date(r.a.start)); P.flashId = r.a.id; renderPanel();
+    toast(`Randevu kaydedildi: ${shortName(r.a.name)} · ${fmtLong(r.a.start)}`);
+  }
+}
+document.addEventListener('submit', e => onFormSubmit(e));
+document.addEventListener('click', e => {
+  const btn = e.target.closest('button[type="submit"]');
+  if (!btn || !btn.form) return;
+  e.preventDefault();
+  onFormSubmit({ target: btn.form, preventDefault() {} });
+});
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if (e.key !== 'Enter' || e.isComposing || !t.form || t.tagName !== 'INPUT' || ['checkbox', 'radio', 'button', 'submit'].includes(t.type)) return;
+  e.preventDefault();
+  onFormSubmit({ target: t.form, preventDefault() {} });
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (P.drawer) closeDrawer(); else if (B) closeSheet(); else if (W.open) { W.open = false; renderWa(); } } });
+
+setInterval(() => {
+  const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+  if (document.body.dataset.mode === 'panel') renderPanel(); else if (!B) renderSite();
+}, 60000);
+
+load();
+applyBrand();
+setDevice(recall('device', window.matchMedia('(max-width:700px)').matches ? 'mobile' : 'desktop'));
+setMode(recall('mode', 'site'));
+renderSheet();
+$('#wa-fab').innerHTML = ICON.wa + '<span>WhatsApp</span>';
+renderWa();
+window.demo = { get S() { return S; }, set S(v) { S = v; }, P, setMode, setDevice, openBooking, renderAll, renderSheet, get B() { return B; }, set B(v) { B = v; }, seed, W, patients, monthStats };
+})();
+</script>
+</body>
+</html>
